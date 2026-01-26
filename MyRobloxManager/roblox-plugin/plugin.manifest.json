@@ -1,0 +1,11 @@
+{
+  "name": "RobloxProjectManager",
+  "version": "0.1.0",
+  "description": "Sync files from VS Code to Roblox Studio",
+  "author": "Roblox Tools",
+  "plugin": {
+    "type": "toolbar",
+    "icon": "rbxasset://textures/ui/Settings/MenuBarIcons/ContactsTab.png",
+    "displayName": "Project Manager"
+  }
+}
