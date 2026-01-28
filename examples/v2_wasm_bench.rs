@@ -1,11 +1,11 @@
 use archx::{engine, PowerMode};
 
-/// v2.0 Sovereign WASM Benchmark Simulation
+/// v2.1 Sovereign WASM Benchmark Simulation
 /// 
-/// Demonstrates how ArchX v2.0 handles environment-aware dispatch 
+/// Demonstrates how ArchX v2.1 handles environment-aware dispatch 
 /// in resource-constrained environments like WASM or background workers.
 fn main() {
-    println!("ArchX v2.0 - WASM / Background Benchmarker");
+    println!("ArchX v2.1 - WASM / Background Benchmarker");
     println!("===========================================");
 
     let sizes = [10_000, 100_000, 1_000_000];
@@ -28,5 +28,5 @@ fn main() {
     }
 
     println!("===========================================");
-    println!("ArchX v2.0: Efficient on any edge.");
+    println!("ArchX v2.1: Efficient on any edge.");
 }

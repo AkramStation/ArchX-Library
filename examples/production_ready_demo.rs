@@ -1,7 +1,7 @@
 use archx::*;
 use std::time::Instant;
 
-/// ArchX v2.0 Sovereign Demo
+/// ArchX v2.1 Sovereign Demo
 /// 
 /// This example demonstrates the full capabilities of the production-ready 1.0 release:
 /// - Smart Hardware-Aware Dispatch
@@ -10,7 +10,7 @@ use std::time::Instant;
 /// - Deep Diagnostics & Profiling
 #[tokio::main]
 async fn main() {
-    println!("ArchX v2.0 - Sovereign Production Ready Release");
+    println!("ArchX v2.1 - Sovereign Production Ready Release");
     println!("===============================================");
 
     // 1. System Insight
@@ -54,5 +54,5 @@ async fn main() {
     println!("Async result computed. Size: {}", result.len());
 
     println!("===============================================");
-    println!("ArchX v2.0 - Verification COMPLETE");
+    println!("ArchX v2.1 - Verification COMPLETE");
 }

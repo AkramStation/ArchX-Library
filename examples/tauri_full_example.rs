@@ -19,7 +19,7 @@ async fn archx_process_full(data: Vec<f32>) -> (Vec<f32>, Vec<Metric>) {
 
 #[tokio::main]
 async fn main() {
-    println!("ArchX v2.0 - Sovereign Tauri Full Integration & Profiling Example");
+    println!("ArchX v2.1 - Sovereign Tauri Full Integration & Profiling Example");
     println!("-------------------------------------------------------");
     
     let input = vec![1.23; 10_000_000];

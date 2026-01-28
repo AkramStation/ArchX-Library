@@ -1,6 +1,6 @@
 use crate::dispatch::select::Selector;
 pub use crate::optimizer::scheduler::WorkloadHints;
-use crate::optimizer::{parallel, gpu};
+use crate::optimizer::parallel;
 use crate::hardware::SystemInfo;
 
 /// Publicly exposed CPU information.
@@ -42,10 +42,13 @@ pub fn add_advanced(a: &[f32], b: &[f32], out: &mut [f32], hints: WorkloadHints)
 
     match strategy {
         crate::adaptive::Strategy::GpuOffload => {
-            let gpu_result = gpu::with_backend(|backend| backend.add(a, b, out));
+            let gpu_result = crate::gpu::with_backend(|backend: &dyn crate::gpu::GpuBackend| backend.add(a, b, out));
             if let Some(Ok(_)) = gpu_result { return; }
             // Fallback to parallel if GPU fails
             parallel::add_parallel_impl(a, b, out, &hints);
+        }
+        crate::adaptive::Strategy::Hybrid => {
+            crate::dispatch::hybrid::HybridScheduler::dispatch(a, b, out);
         }
         crate::adaptive::Strategy::ParallelSimd(n) => {
             let mut active_hints = hints;

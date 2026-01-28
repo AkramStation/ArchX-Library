@@ -13,7 +13,7 @@ async fn tauri_archx_compute(data: Vec<f32>) -> Vec<f32> {
 
 #[tokio::main]
 async fn main() {
-    println!("ArchX v2.0 - Sovereign Tauri Async Integration Example");
+    println!("ArchX v2.1 - Sovereign Tauri Async Integration Example");
     println!("---------------------------------------------");
     
     let large_data = vec![1.0; 1000];

@@ -26,6 +26,7 @@ fn test_adaptive_heuristics() {
     // 4. Resource capping
     let hints_cap = WorkloadHints {
         max_cpu_usage: Some(0.1),
+        prefer_gpu: false, // Ensure we stay on CPU for this specific test case
         ..Default::default()
     };
     let s_cap = AdaptiveEngine::choose_strategy(1_000_000, &hints_cap, &info);

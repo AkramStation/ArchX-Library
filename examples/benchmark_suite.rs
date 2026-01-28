@@ -1,12 +1,12 @@
 use archx::profiling::get_profiler;
 use std::time::Instant;
 
-/// v2.0 Sovereign Benchmark & Profiling Suite
+/// v2.1 Sovereign Benchmark & Profiling Suite
 /// 
 /// This tool allows users to verify ArchX performance on their own hardware
 /// and see exactly how the adaptive engine behaves.
 fn main() {
-    println!("ArchX v2.0 - Professional Benchmark Suite");
+    println!("ArchX v2.1 - Professional Benchmark Suite");
     println!("========================================");
     
     let sizes = [10_000, 100_000, 1_000_000, 10_000_000];

@@ -6,9 +6,10 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct Metric {
     pub name: String,
-    pub subsystem: String, // "SIMD", "Parallel", "GPU", etc.
-    pub device: String,    // "CPU", "GPU:0", etc.
+    pub backend: String,   // "SIMD", "Vulkan", "OpenCL"
+    pub device: String,    // "CPU", "iGPU", "dGPU"
     pub duration: Duration,
+    pub energy_estimate: f32, // New in v2.1 (estimated power draw)
     pub thread_id: Option<usize>,
     pub metadata: HashMap<String, String>,
 }
@@ -64,10 +65,10 @@ impl Profiler {
     /// Exports metrics as a professional CSV string with device info.
     pub fn to_csv(&self) -> String {
         let snapshot = self.get_snapshot();
-        let mut csv = String::from("name,subsystem,device,duration_ms,thread_id\n");
+        let mut csv = String::from("p_name,backend,device,duration_ms,energy_est,thread_id\n");
         for m in snapshot {
-            csv.push_str(&format!("{},{},{},{:.4},{:?}\n", 
-                m.name, m.subsystem, m.device, m.duration.as_secs_f64() * 1000.0, m.thread_id));
+            csv.push_str(&format!("{},{},{},{:.4},{:.2},{:?}\n", 
+                m.name, m.backend, m.device, m.duration.as_secs_f64() * 1000.0, m.energy_estimate, m.thread_id));
         }
         csv
     }
@@ -80,18 +81,18 @@ impl Profiler {
             return;
         }
 
-        println!("\n\x1b[1;36m┌── ArchX Sovereign v2.0 Profile ───────────────────────────────┐\x1b[0m");
-        println!("│ \x1b[1m{:<20}\x1b[0m │ \x1b[1m{:<10}\x1b[0m │ \x1b[1m{:<10}\x1b[0m │ \x1b[1m{:<12}\x1b[0m │", "Task", "Subsystem", "Device", "Time (ms)");
-        println!("├──────────────────────┼────────────┼────────────┼──────────────┤");
+        println!("\n\x1b[1;36m┌── ArchX Sovereign v2.1 Profile ───────────────────────────────┐\x1b[0m");
+        println!("│ \x1b[1m{:<18}\x1b[0m │ \x1b[1m{:<10}\x1b[0m │ \x1b[1m{:<10}\x1b[0m │ \x1b[1m{:<12}\x1b[0m │", "Task", "Device", "Backend", "Time (ms)");
+        println!("├────────────────────┼────────────┼───────────┼────────────────┤");
         for m in snapshot {
-            println!("│ {:<20} │ {:<10} │ {:<10} │ {:>10.4} ms │", 
+            println!("│ {:<18} │ {:<10} │ {:<9} │ {:>10.4} ms │", 
                 m.name, 
-                m.subsystem,
                 m.device,
+                m.backend,
                 m.duration.as_secs_f64() * 1000.0
             );
         }
-        println!("\x1b[1;36m└──────────────────────┴────────────┴────────────┴──────────────┘\x1b[0m\n");
+        println!("\x1b[1;36m└────────────────────┴────────────┴───────────┴────────────────┘\x1b[0m\n");
     }
 }
 
@@ -104,20 +105,20 @@ pub fn get_profiler() -> &'static Profiler {
 /// A scope-based timer for profiling.
 pub struct ProfileScope {
     name: String,
-    subsystem: String,
+    backend: String,
     device: String,
     start: Instant,
     thread_id: Option<usize>,
 }
 
 impl ProfileScope {
-    pub fn new(name: &str, subsystem: &str, device: &str, thread_id: Option<usize>) -> Self {
+    pub fn new(name: &str, device: &str, backend: &str) -> Self {
         Self {
             name: name.to_string(),
-            subsystem: subsystem.to_string(),
             device: device.to_string(),
+            backend: backend.to_string(),
             start: Instant::now(),
-            thread_id,
+            thread_id: None,
         }
     }
 }
@@ -125,11 +126,17 @@ impl ProfileScope {
 impl Drop for ProfileScope {
     fn drop(&mut self) {
         let duration = self.start.elapsed();
+        // Estimated energy profile (v2.1 placeholder logic)
+        // Energy = Duration * BasePower (CPU ~45W, iGPU ~15W)
+        let energy_multiplier = if self.device.contains("GPU") { 15.0 } else { 45.0 };
+        let energy_estimate = duration.as_secs_f32() * energy_multiplier;
+
         get_profiler().record(Metric {
             name: self.name.clone(),
-            subsystem: self.subsystem.clone(),
+            backend: self.backend.clone(),
             device: self.device.clone(),
             duration,
+            energy_estimate,
             thread_id: self.thread_id,
             metadata: HashMap::new(),
         });

@@ -17,12 +17,14 @@ pub struct CpuInfo {
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct GpuInfo {
     pub name: String,
-    pub vendor: String,
-    pub memory_gb: f64,
-    pub api: GpuApi,
+    pub vendor: Option<String>,
+    pub memory_gb: Option<f32>,
+    pub api: Option<String>,
+    pub is_integrated: bool,
+    pub memory_shared: bool,
 }
 
-/// Supported GPU APIs for detection.
+/// Supported GPU APIs for detection records.
 #[derive(Debug, Clone, serde::Serialize)]
 pub enum GpuApi {
     Cuda,
@@ -54,13 +56,15 @@ impl SystemInfo {
             logical_processors: logical,
         };
 
-        // v2.0: Attempt to detect GPU through registered backends or system queries
-        let gpu = crate::optimizer::gpu::get_active_backend_name().map(|name| {
+        // v2.2: Unified descriptive hardware detection
+        let gpu = crate::gpu::get_active_backend_name().map(|name| {
             GpuInfo {
                 name,
-                vendor: "Detected".to_string(),
-                memory_gb: 4.0, // Default estimate for v2.0
-                api: GpuApi::Mock, // Default for now
+                vendor: Some("Probed Device".to_string()),
+                memory_gb: Some(4.0),
+                api: Some("Vulkan".to_string()), 
+                is_integrated: true,
+                memory_shared: true,
             }
         });
 

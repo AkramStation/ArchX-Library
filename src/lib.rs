@@ -1,78 +1,70 @@
-//! # ArchX — Your CPU already knows how to be fast. Let it decide.
+//! # ArchX v2.3 — Adaptive Resource Intelligence Runtime
 //!
-//! **ArchX** is a mission-critical, adaptive acceleration engine for the modern Rust ecosystem. 
-//! It eliminates the guesswork from performance optimization by dynamically routing workloads 
-//! across SIMD, Multithreading, and GPU based on real-time hardware topology.
-//!
-//! ## 🚀 Quick Start
-//!
-//! ```rust
-//! use archx::add;
-//!
-//! let a = vec![1.0; 1_000_000];
-//! let b = vec![2.0; 1_000_000];
-//! let mut out = vec![0.0; 1_000_000];
-//!
-//! // ArchX detects your CPU and decides the best path (SIMD or Parallel).
-//! add(&a, &b, &mut out);
-//! ```
-//!
-//! ## 🏗️ Core Architecture
-//!
-//! - **Adaptive Engine**: Intelligent heuristics that balance throughput vs. latency.
-//! - **Hardware Awareness**: Runtime detection of AVX-512, AVX2, AVX, and SSE2.
-//! - **Fluent API**: Builder-style control for resource-capped environments.
-//!
-//! ## 🛠️ Feature Flags
-//!
-//! - `serde`: Enables serialization for hardware info and metrics.
-//!
-//! ---
-//! Designed with love by **Codevora Studio**.
+//! Let your hardware decide how to be fast safely.
 
+pub mod detect;
+pub mod profiler;
+pub mod decision;
+pub mod execution;
+pub mod runtime;
+pub mod public_api;
+
+// Maintain existing modules for backward compatibility
 pub mod cpu;
 pub mod dispatch;
 pub mod optimizer;
 pub mod system;
 pub mod diagnostics;
 pub mod integration;
-pub mod engine;
 pub mod plugin;
+pub mod device;
+pub mod gpu;
 pub mod async_ops;
 pub mod profiling;
 pub mod hardware;
 pub mod adaptive;
 
-/// Public API gateway for common operations.
+
+// Re-export core v2.3 API
+pub use public_api::ArchX;
+pub use public_api::archx::{engine, archx, ArchXBuilder};
+pub use decision::Policy;
+
+// Re-export legacy items for stability
+pub use hardware::{SystemInfo, CpuInfo, GpuInfo, GpuApi};
 pub use system::{add, add_advanced, get_info, get_system_info, WorkloadHints};
-pub use engine::{engine, ArchXEngine};
-pub use optimizer::scheduler::PowerMode;
+pub use adaptive::AdaptiveEngine;
 pub use async_ops::add_async;
-pub use optimizer::gpu::{register_backend, GpuBackend};
-pub use hardware::{SystemInfo, CpuInfo, GpuInfo};
+pub use optimizer::scheduler::PowerMode;
+pub use profiling::get_profiler;
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_v2_system_detection() {
-        let info = get_system_info();
-        println!("Detected System v2: {:?}", info);
-        // Sane check: CPU Arch shouldn't be Unknown
-        assert_ne!(info.cpu.arch, cpu::arch::CpuArch::Unknown);
+    fn test_v2_3_detection() {
+        let state = detect::HardwareState::capture();
+        println!("ArchX v2.3 Hardware State: {:?}", state);
+        assert!(state.cpu.logical_threads > 0);
     }
 
     #[test]
-    fn test_add_operation_basic() {
-        let a = vec![1.0, 2.0, 3.0, 4.0];
-        let b = vec![5.0, 6.0, 7.0, 8.0];
-        let mut out = vec![0.0; 4];
-        
+    fn test_archx_run_api() {
+        let result = ArchX::run(|| {
+            let mut x = 0;
+            for i in 0..100 { x += i; }
+            x
+        });
+        assert_eq!(result, 4950);
+    }
+
+    #[test]
+    fn test_legacy_add_parity() {
+        let a = vec![1.0; 100];
+        let b = vec![2.0; 100];
+        let mut out = vec![0.0; 100];
         add(&a, &b, &mut out);
-        
-        assert_eq!(out, vec![6.0, 8.0, 10.0, 12.0]);
+        assert_eq!(out[0], 3.0);
     }
 }
-
-

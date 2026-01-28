@@ -1,18 +1,18 @@
 use archx::{engine, PowerMode, get_system_info};
 
-/// Flagship v2.0 Sovereign Demo
+/// Flagship v2.1 Sovereign Demo
 /// 
 /// This example demonstrates the unified SystemInfo architecture and 
-/// the smarter v2.0 adaptive execution engine.
+/// the smarter v2.1 adaptive execution engine.
 fn main() {
-    println!("ArchX v2.0 - Sovereign Acceleration Ecosystem");
+    println!("ArchX v2.1 - Sovereign Acceleration Ecosystem");
     println!("==============================================");
 
     // 1. Inspect the Unified v2 System
     let info = get_system_info();
     println!("Device Status:");
     println!(" - CPU: {:?} ({} cores, {} logical)", info.cpu.arch, info.cpu.cores, info.cpu.logical_processors);
-    println!(" - GPU: {}", if let Some(gpu) = &info.gpu { format!("{:?} ({}GB)", gpu.api, gpu.memory_gb) } else { "Not Detected / Not Registered".to_string() });
+    println!(" - GPU: {}", if let Some(gpu) = &info.gpu { format!("{} ({}GB) via {:?}", gpu.name, gpu.memory_gb.unwrap_or(0.0), gpu.api) } else { "Not Detected / Not Registered".to_string() });
     println!(" - Bitness: {:?}", info.cpu.bits);
     
     let size = 2_000_000;
@@ -22,7 +22,7 @@ fn main() {
 
     println!("\nExecuting v2 Adaptive Dispatch (2M elements)...");
 
-    // 2. Use the Fluent API with v2.0 Heuristics
+    // 2. Use the Fluent API with v2.1 Heuristics
     // The engine automatically decides between Scalar, SIMD (AVX/Neon), 
     // Parallel, or GPU based on the unified info gathered above.
     engine()
@@ -37,5 +37,5 @@ fn main() {
 
     println!("Verification: Result[0] = {} (Expected 2.0)", out[0]);
     println!("==============================================");
-    println!("ArchX v2.0: The Sovereignty of Choice.");
+    println!("ArchX v2.1: The Sovereignty of Choice.");
 }

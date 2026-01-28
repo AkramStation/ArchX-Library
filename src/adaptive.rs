@@ -1,13 +1,16 @@
 use crate::hardware::SystemInfo;
 use crate::optimizer::scheduler::{WorkloadHints, PowerMode};
 
+pub use crate::decision::Policy;
+
 /// The strategy chosen by the adaptive engine in v2.0.0.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Strategy {
+    ScalarFallback,
     SingleThreadSimd,
     ParallelSimd(usize), // Active thread count
     GpuOffload,
-    ScalarFallback,
+    Hybrid, // New in v2.1
 }
 
 /// A smart engine that decides the best compute path at runtime.
@@ -25,9 +28,12 @@ impl AdaptiveEngine {
         // 1. GPU Path - Refined for Sovereign Upgrade
         // We only offload if a GPU is detected and the dataset is large enough to 
         // justify the PCIe overhead (approx 250k elements for AVX-2, 1M for AVX-512).
-        let gpu_threshold = if info.cpu.features.avx512f { 1_000_000 } else { 250_000 };
-        
-        if hints.prefer_gpu && info.gpu.is_some() && len >= gpu_threshold {
+        let _gpu_threshold = if info.cpu.features.avx512f { 1_000_000 } else { 250_000 };
+        if len > 1_000_000 && hints.prefer_gpu && info.gpu.is_some() {
+            return Strategy::Hybrid;
+        }
+
+        if len > 250_000 && hints.prefer_gpu && info.gpu.is_some() {
             return Strategy::GpuOffload;
         }
 
