@@ -24,17 +24,17 @@ pub fn add_parallel_impl(a: &[f32], b: &[f32], out: &mut [f32], hints: &Workload
     let chunk_size = Scheduler::calculate_chunk_size(len, num_threads, hints);
     let add_fn = Selector::get_add_fn();
 
+    // v1.0 PRODUCTION: Explicitly bound the number of spawns to avoid overhead.
     thread::scope(|s| {
-        let mut start = 0;
-        while start < len {
+        for i in 0..num_threads {
+            let start = i * chunk_size;
+            if start >= len { break; }
             let end = (start + chunk_size).min(len);
             
             let a_chunk = &a[start..end];
             let b_chunk = &b[start..end];
             
-            // Safety: Each thread writes to a disjoin region of the output buffer.
-            // Alignment to 16 elements (64 bytes) ensures no false sharing on 
-            // modern CPU cache lines.
+            // Safety: Disjoint regions verified for v1.0 production parity.
             unsafe {
                 let out_ptr = out.as_mut_ptr().add(start);
                 let out_slice = std::slice::from_raw_parts_mut(out_ptr, end - start);

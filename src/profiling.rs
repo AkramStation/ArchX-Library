@@ -6,6 +6,7 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct Metric {
     pub name: String,
+    pub subsystem: String, // v1.0: "CPU", "GPU", "IO", etc.
     pub duration: Duration,
     pub thread_id: Option<usize>,
     pub metadata: HashMap<String, String>,
@@ -101,6 +102,7 @@ impl Drop for ProfileScope {
         let duration = self.start.elapsed();
         get_profiler().record(Metric {
             name: self.name.clone(),
+            subsystem: "Execution".to_string(),
             duration,
             thread_id: self.thread_id,
             metadata: HashMap::new(),

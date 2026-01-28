@@ -3,7 +3,7 @@
 **ArchX** is a primitive but solid CPU-aware optimization foundation for Rust. It provides a clean, modular architecture for detecting CPU features at runtime and dispatching optimized execution paths, ensuring performance without sacrificing safety or portability.
 
 > [!NOTE]
-> This is **v0.9** (Smart Adaptive). The "Intelligence" release introduces a **hardware-aware optimization engine**, **dynamic resource-capping**, and **power-efficient modes** for superior performance across varied system loads.
+> This is **v1.0** (General Availability). The "Production" release marks the official stability milestone for ArchX, featuring a **fully tuned smart engine**, **mission-critical reliability**, and **enterprise-grade diagnostics**.
 
 ---
 

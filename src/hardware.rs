@@ -10,18 +10,30 @@ pub struct HardwareInfo {
     pub cpu_cores: usize,
     pub logical_processors: usize,
     pub features: CpuFeatures,
-    pub suspected_load: f32, // 0.0 to 1.0 (estimated)
+    pub suspected_load: f32,
+    pub available_memory_gb: f64,
 }
 
 impl HardwareInfo {
     pub fn detect() -> Self {
         let logical = thread::available_parallelism().map(|n| n.get()).unwrap_or(1);
         
+        // Physical core estimation (clamped to at least 1)
+        // Note: In a production v1.0, we would use a crate like 'sysinfo' or 'num_cpus' 
+        // for real topology, but for this standalone impl we use logical/2.
+        let cores = (logical / 2).max(1);
+        
         Self {
-            cpu_cores: logical / 2, // Simple heuristic for physical cores
+            cpu_cores: cores,
             logical_processors: logical,
             features: CpuFeatures::detect(),
-            suspected_load: 0.0, // Initial load is zero (needs polling logic)
+            suspected_load: 0.0,
+            available_memory_gb: 8.0, // Placeholder: v1.0 would poll OS metrics
         }
+    }
+
+    pub fn can_handle_dataset(&self, elements: usize) -> bool {
+        let required_gb = (elements * 4 * 3) as f64 / 1e9; // 3 f32 vectors
+        required_gb < self.available_memory_gb * 0.8 // 80% safety margin
     }
 }
