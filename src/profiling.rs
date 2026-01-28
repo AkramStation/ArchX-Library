@@ -68,9 +68,32 @@ impl Profiler {
         let snapshot = self.get_snapshot();
         let mut csv = String::from("name,duration_ms,thread_id\n");
         for m in snapshot {
-            csv.push_str(&format!("{},{},{:?}\n", m.name, m.duration.as_secs_f64() * 1000.0, m.thread_id));
+            csv.push_str(&format!("{},{:.4},{:?}\n", m.name, m.duration.as_secs_f64() * 1000.0, m.thread_id));
         }
         csv
+    }
+
+    /// Prints a professional, human-readable performance summary.
+    pub fn print_summary(&self) {
+        let snapshot = self.get_snapshot();
+        if snapshot.is_empty() {
+            println!("\x1b[33m[ArchX Profiler]\x1b[0m No metrics collected.");
+            return;
+        }
+
+        println!("\n\x1b[1;36m┌── ArchX Execution Profile ──────────────────────────┐\x1b[0m");
+        for m in snapshot {
+            let thread_info = match m.thread_id {
+                Some(id) => format!("Thread #{}", id),
+                None => "Main Thread".to_string(),
+            };
+            println!("│ \x1b[1m{:<25}\x1b[0m │ {:>10.4} ms │ {:<12} │", 
+                m.name, 
+                m.duration.as_secs_f64() * 1000.0,
+                thread_info
+            );
+        }
+        println!("\x1b[1;36m└─────────────────────────────────────────────────────┘\x1b[0m\n");
     }
 }
 

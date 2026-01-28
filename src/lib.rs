@@ -8,6 +8,7 @@ pub mod optimizer;
 pub mod system;
 pub mod diagnostics;
 pub mod integration;
+pub mod engine;
 pub mod plugin;
 pub mod async_ops;
 pub mod profiling;
@@ -16,6 +17,7 @@ pub mod adaptive;
 
 /// Public API gateway for common operations.
 pub use system::{add, add_advanced, get_info, WorkloadHints};
+pub use engine::{engine, ArchXEngine};
 pub use optimizer::scheduler::PowerMode;
 pub use async_ops::add_async;
 pub use optimizer::gpu::{register_backend, GpuBackend};
