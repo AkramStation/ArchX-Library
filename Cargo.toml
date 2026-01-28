@@ -1,0 +1,12 @@
+[package]
+name = "archx"
+version = "0.1.0"
+edition = "2021"
+description = "Primitive but solid CPU-aware optimization library for Rust"
+license = "MIT"
+
+[lib]
+name = "archx"
+crate-type = ["lib"]
+
+[dependencies]
