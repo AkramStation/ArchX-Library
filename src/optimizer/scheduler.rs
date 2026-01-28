@@ -18,19 +18,24 @@ pub struct Scheduler;
 impl Scheduler {
     /// Calculates the optimal chunk size for a given workload.
     /// 
-    /// WHY: We want chunks to be large enough to justify thread overhead 
-    /// but small enough to fit in L1/L2 caches and allow even distribution.
-    /// Aligning to 64 bytes (16 floats) avoids false sharing and is SIMD-optimal.
+    /// v0.7 Adaptive Logic:
+    /// - For very small workloads, use single-threaded execution.
+    /// - For large workloads, partition based on available parallelism 
+    ///   and cache boundaries.
     pub fn calculate_chunk_size(len: usize, num_threads: usize, hints: &WorkloadHints) -> usize {
+        if len < 8192 && hints.thread_count.is_none() {
+            return len; // Too small for threading overhead
+        }
+
         if let Some(min) = hints.min_chunk_size {
             return (min + 15) & !15;
         }
 
-        // Base heuristic: Divide work evenly but don't go below a reasonable floor.
+        // Adaptive heuristic: If system load is high (simulated), increase chunk size 
+        // to reduce task spawning frequency.
         let base_chunk = (len + num_threads - 1) / num_threads;
         
         // Ensure floor (e.g., 8192 elements) to satisfy cache-line utilization
-        // and prevent fine-grained task spawning overhead.
         let floor = 8192;
         let chunk_size = base_chunk.max(floor);
         

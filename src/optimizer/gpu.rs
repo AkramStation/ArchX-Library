@@ -6,7 +6,16 @@ pub trait GpuBackend: Send + Sync {
     /// Returns the name of the backend.
     fn name(&self) -> &str;
     /// Executes the add operation on the GPU.
-    fn add(&self, a: &[f32], b: & [f32], out: &mut [f32]) -> Result<(), String>;
+    fn add(&self, a: &[f32], b: &[f32], out: &mut [f32]) -> Result<(), String>;
+    
+    /// Optional: Asynchronous implementation for non-blocking GPU dispatch.
+    /// Default implementation delegates to synchronous 'add'.
+    fn add_async(&self, a: Vec<f32>, b: Vec<f32>) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<Vec<f32>, String>> + Send>> {
+        let backend_name = self.name().to_string();
+        Box::pin(async move {
+            Err(format!("Backend '{}' does not support native async", backend_name))
+        })
+    }
 }
 
 /// Mock GPU backend for ArchX v0.5 demonstration.

@@ -10,7 +10,7 @@ fn benchmark_simd_performance() {
     let mut out = vec![0.0f32; size];
 
     let info = archx::get_info();
-    println!("\n--- ArchX v0.5 Performance Benchmark ---");
+    println!("\n--- ArchX v0.6 Performance Benchmark ---");
     println!("Size: {} floats", size);
     println!("Environment: {:?} (AVX512: {}, AVX2: {}, AVX: {}, SSE2: {})", 
         info.arch, info.features.avx512f, info.features.avx2, info.features.avx, info.features.sse2);

@@ -77,6 +77,11 @@ impl Selector {
 
     /// Dispatches the 'add' operation using the cached optimal path.
     pub fn dispatch_add(a: &[f32], b: &[f32], out: &mut [f32]) {
+        // v0.7: Check extensible plugin systems first
+        if crate::plugin::try_plugins(a, b, out) {
+            return;
+        }
+
         let func = Self::get_add_fn();
         func(a, b, out);
     }

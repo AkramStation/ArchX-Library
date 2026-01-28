@@ -8,9 +8,12 @@ pub mod optimizer;
 pub mod system;
 pub mod diagnostics;
 pub mod integration;
+pub mod plugin;
+pub mod async_ops;
 
 /// Public API gateway for common operations.
 pub use system::{add, add_advanced, get_info, WorkloadHints};
+pub use async_ops::add_async;
 pub use optimizer::gpu::{register_backend, GpuBackend};
 
 #[cfg(test)]
