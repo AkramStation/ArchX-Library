@@ -1,4 +1,4 @@
-use archx::{add, add_advanced, WorkloadHints, register_backend, GpuBackend};
+use archx::add;
 use archx::integration::tauri::diagnose_system;
 
 // Imagine some Tauri types (mocked for the example)

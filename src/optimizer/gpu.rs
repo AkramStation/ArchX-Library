@@ -10,7 +10,7 @@ pub trait GpuBackend: Send + Sync {
     
     /// Optional: Asynchronous implementation for non-blocking GPU dispatch.
     /// Default implementation delegates to synchronous 'add'.
-    fn add_async(&self, a: Vec<f32>, b: Vec<f32>) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<Vec<f32>, String>> + Send>> {
+    fn add_async(&self, _a: Vec<f32>, _b: Vec<f32>) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<Vec<f32>, String>> + Send>> {
         let backend_name = self.name().to_string();
         Box::pin(async move {
             Err(format!("Backend '{}' does not support native async", backend_name))
