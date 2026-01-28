@@ -1,12 +1,15 @@
 [package]
 name = "archx"
-version = "1.2.0"
+version = "2.0.0"
 authors = ["AkramStation"]
 edition = "2021"
 license = "MIT"
-description = "High-performance CPU/GPU adaptive optimization library for Rust"
-repository = "https://github.com/AkramStation/ArchX-Library"
+description = "High-performance CPU/GPU adaptive optimization library with SIMD and Multithreading"
+repository = "https://github.com/Codevora-Studio/ArchX"
 documentation = "https://docs.rs/archx"
+keywords = ["simd", "optimization", "gpu", "multithreading", "adaptive"]
+categories = ["concurrency", "development-tools::profiling", "hardware-support"]
+readme = "README.md"
 
 
 [lib]

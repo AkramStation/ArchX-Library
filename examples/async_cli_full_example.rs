@@ -2,7 +2,7 @@ use archx::{add_async, WorkloadHints};
 
 #[tokio::main]
 async fn main() {
-    println!("ArchX v0.8 - Async CLI Full Example");
+    println!("ArchX v2.0 - Async CLI Full Example");
     println!("--------------------------------");
 
     let size = 1_000_000;

@@ -9,6 +9,8 @@ pub struct CpuFeatures {
     pub avx2: bool,
     /// Advanced Vector Extensions 512 Foundation
     pub avx512f: bool,
+    /// ARM NEON (Advanced SIMD)
+    pub neon: bool,
 }
 
 impl CpuFeatures {
@@ -22,6 +24,13 @@ impl CpuFeatures {
             features.avx = std::is_x86_feature_detected!("avx");
             features.avx2 = std::is_x86_feature_detected!("avx2");
             features.avx512f = std::is_x86_feature_detected!("avx512f");
+        }
+
+        #[cfg(target_arch = "aarch64")]
+        {
+            // Neon is mandatory on AArch64, but we can check specifically if needed
+            // or just set to true on this platform.
+            features.neon = true; 
         }
 
         features

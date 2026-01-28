@@ -1,4 +1,4 @@
-/// ArchX v0.8 WASM Integration Example (Logic Only)
+/// ArchX v2.0 Sovereign WASM Integration Example (Logic Only)
 /// 
 /// NOTE: To compile for WASM, use `wasm-pack build`.
 /// This example shows the pattern for exposing ArchX to JS.
@@ -16,7 +16,7 @@ pub fn wasm_add(a: Vec<f32>, b: Vec<f32>) -> Vec<f32> {
 }
 
 fn main() {
-    println!("ArchX v0.8 WASM Example");
+    println!("ArchX v2.0 - Sovereign WASM Example");
     println!("Target Architecture: {}", std::env::consts::ARCH);
     println!("To test WASM properly, follow the guide in README.md");
 }

@@ -2,7 +2,7 @@ use std::env;
 
 /// Represents supported CPU architectures.
 /// Using an enum provides type safety across the library.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
 pub enum CpuArch {
     X86,
     X86_64,

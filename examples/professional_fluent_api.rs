@@ -2,12 +2,12 @@ use archx::{engine, PowerMode};
 
 /// Flagship Example: Professional Fluent API
 /// 
-/// This example demonstrates the v1.2 ecosystem features:
+/// This example demonstrates the v2.0 Sovereign features:
 /// 1. Fluent Builder API
 /// 2. Automatic Heuristic Routing
 /// 3. Human-Readable Performance Profiling
 fn main() {
-    println!("ArchX v1.2 - High-Performance Acceleration Ecosystem");
+    println!("ArchX v2.0 - Sovereign Acceleration Ecosystem");
     println!("=====================================================");
 
     let size = 1_000_000;

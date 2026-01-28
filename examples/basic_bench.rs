@@ -7,7 +7,7 @@ fn main() {
     let b = vec![3.5f32; size];
     let mut out = vec![0.0f32; size];
 
-    println!("ArchX v0.8 - Basic Benchmark Example");
+    println!("ArchX v2.0 - Basic Benchmark Example");
     println!("---------------------------------------");
     
     let info = archx::get_info();

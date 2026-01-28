@@ -16,7 +16,7 @@ pub fn wasm_smart_add(a: Vec<f32>, b: Vec<f32>) -> Vec<f32> {
 }
 
 fn main() {
-    println!("ArchX v0.9 - Smart WASM Integration Guide");
+    println!("ArchX v2.0 - Sovereign WASM Integration Guide");
     println!("Hardware detection in WASM is specialized.");
-    println!("ArchX v0.9 heuristics are compatible with wasm32 single-thread fallback.");
+    println!("ArchX v2.0 Sovereign heuristics are compatible with wasm32 single-thread fallback.");
 }

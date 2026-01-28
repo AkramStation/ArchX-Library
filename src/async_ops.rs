@@ -8,7 +8,7 @@ use crate::optimizer::gpu;
 /// WHY: v0.7 adds async support to avoid blocking the main thread (or Tauri UI thread)
 /// during massive computations. It integrates both CPU-parallel and GPU paths.
 pub fn add_async(a: Vec<f32>, b: Vec<f32>, hints: WorkloadHints) -> Pin<Box<dyn Future<Output = Vec<f32>> + Send>> {
-    let _scope = crate::profiling::ProfileScope::new("Async Operation Entry", None);
+    let _scope = crate::profiling::ProfileScope::new("Async Operation Entry", "Async", "CPU", None);
     Box::pin(async move {
         // 1. Try GPU async path if preferred
         if hints.prefer_gpu {

@@ -14,6 +14,7 @@ pub enum DispatchPath {
     AVX,
     AVX2,
     AVX512,
+    Neon, // v2.0 ARM64 path
 }
 
 /// A selector that decides which implementation path to use based on CPU features.
@@ -34,6 +35,8 @@ impl Selector {
             DispatchPath::AVX
         } else if features.sse2 {
             DispatchPath::SSE2
+        } else if features.neon {
+            DispatchPath::Neon
         } else {
             DispatchPath::Scalar
         }
@@ -68,6 +71,12 @@ impl Selector {
                     #[cfg(target_arch = "x86_64")]
                     { sse2::add_sse2_impl }
                     #[cfg(not(target_arch = "x86_64"))]
+                    { scalar::add_impl }
+                }
+                DispatchPath::Neon => {
+                    #[cfg(target_arch = "aarch64")]
+                    { crate::optimizer::simd::neon::add_neon_impl }
+                    #[cfg(not(target_arch = "aarch64"))]
                     { scalar::add_impl }
                 }
                 DispatchPath::Scalar => scalar::add_impl,

@@ -2,31 +2,38 @@
 use std::arch::x86_64::*;
 use crate::optimizer::scalar;
 
-/// AVX-512 implementation of the add operation.
+/// AVX-512 implementation of the add operation with v2.0 loop unrolling.
 /// 
-/// WHY: AVX-512 allows processing 16 floats (512 bits) in a single instruction.
-/// This doubles the throughput compared to AVX/AVX2 on supported hardware.
+/// Process 32 floats per iteration (2x zmm registers) to maximize 
+/// instruction-level parallelism.
 pub fn add_avx512_impl(a: &[f32], b: &[f32], out: &mut [f32]) {
     let len = a.len().min(b.len()).min(out.len());
     
-    // Process in chunks of 16 (AVX-512 zmm register size for f32)
-    let simd_len = len / 16;
-    let main_loop_len = simd_len * 16;
+    // Process in chunks of 32 (2x AVX-512 registers)
+    let unroll_factor = 32;
+    let simd_len = len / unroll_factor;
+    let main_loop_len = simd_len * unroll_factor;
 
     #[cfg(target_arch = "x86_64")]
     {
-        // SAFETY: The caller must ensure AVX-512F is supported at runtime.
         unsafe {
-            for i in (0..main_loop_len).step_by(16) {
-                // Load 16 floats (unaligned)
-                let va = _mm512_loadu_ps(a.as_ptr().add(i));
-                let vb = _mm512_loadu_ps(b.as_ptr().add(i));
+            for i in (0..main_loop_len).step_by(unroll_factor) {
+                let a_ptr = a.as_ptr().add(i);
+                let b_ptr = b.as_ptr().add(i);
+                let out_ptr = out.as_mut_ptr().add(i);
+
+                // Quad-load for pipeline saturation
+                let va1 = _mm512_loadu_ps(a_ptr);
+                let va2 = _mm512_loadu_ps(a_ptr.add(16));
                 
-                // Add registers
-                let vres = _mm512_add_ps(va, vb);
+                let vb1 = _mm512_loadu_ps(b_ptr);
+                let vb2 = _mm512_loadu_ps(b_ptr.add(16));
                 
-                // Store 16 floats (unaligned)
-                _mm512_storeu_ps(out.as_mut_ptr().add(i), vres);
+                let vres1 = _mm512_add_ps(va1, vb1);
+                let vres2 = _mm512_add_ps(va2, vb2);
+                
+                _mm512_storeu_ps(out_ptr, vres1);
+                _mm512_storeu_ps(out_ptr.add(16), vres2);
             }
         }
     }

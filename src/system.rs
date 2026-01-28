@@ -1,47 +1,43 @@
-use crate::cpu::{
-    arch::{detect_arch, CpuArch},
-    bits::{detect_bits, Bitness},
-    features::CpuFeatures,
-};
 use crate::dispatch::select::Selector;
-
-/// Aggregated information about the host CPU.
-/// 
-/// WHY: Providing a single struct for CPU info makes it easy for users 
-/// to log or inspect the environment their code is running in.
-#[derive(Debug, Clone, Copy)]
-pub struct CpuInfo {
-    pub arch: CpuArch,
-    pub bits: Bitness,
-    pub features: CpuFeatures,
-}
-
-impl CpuInfo {
-    /// Gathers all CPU information.
-    pub fn detect() -> Self {
-        Self {
-            arch: detect_arch(),
-            bits: detect_bits(),
-            features: CpuFeatures::detect(),
-        }
-    }
-}
-
 pub use crate::optimizer::scheduler::WorkloadHints;
 use crate::optimizer::{parallel, gpu};
+use crate::hardware::SystemInfo;
 
+/// Publicly exposed CPU information.
+pub use crate::hardware::CpuInfo;
 
 /// A high-level, CPU-aware addition operation.
 /// 
-/// This function uses default heuristics for optimal performance. 
-/// For large workloads, it automatically employs parallel processing.
+/// This is the "Just Work" API. It automatically detects the best
+/// execution path (SIMD, Parallel, or Scalar) based on data size and hardware.
+///
+/// # Panics
+///
+/// This function will panic if the input slices `a` and `b` have different lengths, 
+/// or if `out` is smaller than the input slices.
+///
+/// # Example
+///
+/// ```rust
+/// use archx::add;
+///
+/// let a = vec![1.0; 1000];
+/// let b = vec![2.0; 1000];
+/// let mut out = vec![0.0; 1000];
+///
+/// add(&a, &b, &mut out);
+/// assert_eq!(out[0], 3.0);
+/// ```
 pub fn add(a: &[f32], b: &[f32], out: &mut [f32]) {
     add_advanced(a, b, out, WorkloadHints::default());
 }
 
 /// An advanced addition operation that accepts performance tuning hints.
+/// 
+/// Use this if you need fine-grained control over thread counts, power modes,
+/// or resource capping (e.g., in background tasks or battery-critical scenarios).
 pub fn add_advanced(a: &[f32], b: &[f32], out: &mut [f32], hints: WorkloadHints) {
-    let info = crate::hardware::HardwareInfo::detect();
+    let info = SystemInfo::detect();
     let strategy = crate::adaptive::AdaptiveEngine::choose_strategy(a.len(), &hints, &info);
 
     match strategy {
@@ -65,7 +61,12 @@ pub fn add_advanced(a: &[f32], b: &[f32], out: &mut [f32], hints: WorkloadHints)
     }
 }
 
-/// Returns the detected CPU info.
+/// Returns the detected system info in v2.0 format.
 pub fn get_info() -> CpuInfo {
-    CpuInfo::detect()
+    SystemInfo::detect().cpu
+}
+
+/// Returns the full system information (CPU + GPU).
+pub fn get_system_info() -> SystemInfo {
+    SystemInfo::detect()
 }

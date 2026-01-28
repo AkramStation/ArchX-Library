@@ -2,7 +2,7 @@ use archx::*;
 
 #[tokio::main]
 async fn main() {
-    println!("ArchX v1.1 - Smart & Resource-Aware CLI Example");
+    println!("ArchX v2.0 - Sovereign Smart CLI Example");
     println!("===============================================");
 
     // 1. Balanced Mode (Default)

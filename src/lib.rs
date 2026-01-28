@@ -1,6 +1,36 @@
-//! ArchX: CPU-aware detection and optimization foundation.
-//! 
-//! v0.1 focuses on a clean modular architecture and scalar fallback.
+//! # ArchX — Your CPU already knows how to be fast. Let it decide.
+//!
+//! **ArchX** is a mission-critical, adaptive acceleration engine for the modern Rust ecosystem. 
+//! It eliminates the guesswork from performance optimization by dynamically routing workloads 
+//! across SIMD, Multithreading, and GPU based on real-time hardware topology.
+//!
+//! ## 🚀 Quick Start
+//!
+//! ```rust
+//! use archx::add;
+//!
+//! fn main() {
+//!     let a = vec![1.0; 1_000_000];
+//!     let b = vec![2.0; 1_000_000];
+//!     let mut out = vec![0.0; 1_000_000];
+//!
+//!     // ArchX detects your CPU and decides the best path (SIMD or Parallel).
+//!     add(&a, &b, &mut out);
+//! }
+//! ```
+//!
+//! ## 🏗️ Core Architecture
+//!
+//! - **Adaptive Engine**: Intelligent heuristics that balance throughput vs. latency.
+//! - **Hardware Awareness**: Runtime detection of AVX-512, AVX2, AVX, and SSE2.
+//! - **Fluent API**: Builder-style control for resource-capped environments.
+//!
+//! ## 🛠️ Feature Flags
+//!
+//! - `serde`: Enables serialization for hardware info and metrics.
+//!
+//! ---
+//! Designed with love by **Codevora Studio**.
 
 pub mod cpu;
 pub mod dispatch;
@@ -16,22 +46,23 @@ pub mod hardware;
 pub mod adaptive;
 
 /// Public API gateway for common operations.
-pub use system::{add, add_advanced, get_info, WorkloadHints};
+pub use system::{add, add_advanced, get_info, get_system_info, WorkloadHints};
 pub use engine::{engine, ArchXEngine};
 pub use optimizer::scheduler::PowerMode;
 pub use async_ops::add_async;
 pub use optimizer::gpu::{register_backend, GpuBackend};
+pub use hardware::{SystemInfo, CpuInfo, GpuInfo};
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_cpu_detection() {
-        let info = get_info();
-        println!("Detected CPU: {:?}", info);
-        // Sane check: Arch shouldn't be Unknown on most dev machines
-        assert_ne!(info.arch, cpu::arch::CpuArch::Unknown);
+    fn test_v2_system_detection() {
+        let info = get_system_info();
+        println!("Detected System v2: {:?}", info);
+        // Sane check: CPU Arch shouldn't be Unknown
+        assert_ne!(info.cpu.arch, cpu::arch::CpuArch::Unknown);
     }
 
     #[test]

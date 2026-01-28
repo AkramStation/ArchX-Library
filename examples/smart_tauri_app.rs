@@ -16,7 +16,7 @@ async fn tauri_smart_compute(data: Vec<f32>, power_saving: bool) -> Vec<f32> {
 
 #[tokio::main]
 async fn main() {
-    println!("ArchX v0.9 - Smart Tauri-Ready Backend Example");
+    println!("ArchX v2.0 - Sovereign Tauri-Ready Backend Example");
     println!("----------------------------------------------");
     
     let input = vec![1.23; 500_000];
