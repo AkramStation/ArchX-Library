@@ -3,7 +3,8 @@
 **ArchX** is a primitive but solid CPU-aware optimization foundation for Rust. It provides a clean, modular architecture for detecting CPU features at runtime and dispatching optimized execution paths, ensuring performance without sacrificing safety or portability.
 
 > [!NOTE]
-> This is **v0.1**. It establishes the core architecture and fallback logic. SIMD implementations (AVX/AVX2) are planned for v0.2.
+> This is **v0.2**. It introduces the first SIMD acceleration layer (SSE2). 
+> Higher extensions like AVX/AVX2 are planned for subsequent versions.
 
 ---
 
