@@ -1,6 +1,6 @@
 [package]
 name = "archx"
-version = "2.1.0"
+version = "2.4.0"
 authors = ["AkramStation"]
 edition = "2021"
 license = "MIT"
@@ -17,6 +17,8 @@ name = "archx"
 crate-type = ["lib"]
 
 [dependencies]
+rayon = "1.11.0"
+safe_arch = "1.0.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 sysinfo = "0.38.0"

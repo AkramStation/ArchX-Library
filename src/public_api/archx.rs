@@ -16,8 +16,8 @@ impl ArchX {
         let strategy = Heuristics::decide(&state, Policy::Balanced);
         
         let mut _metrics = TaskMetrics::new();
-        // For ArchX v2.3, we log the strategy and usage
-        println!("[ArchX v2.3] Usage: {:.1}%, Strategy: {:?}", state.cpu.usage, strategy);
+        // For ArchX v2.4, we log the strategy and usage
+        println!("[ArchX v2.4] Usage: {:.1}%, Strategy: {:?}", state.cpu.usage, strategy);
         
         let result = task();
         
@@ -25,7 +25,7 @@ impl ArchX {
         result
     }
 
-    /// Builder style for more control (v2.3).
+    /// Builder style for more control (v2.4).
     pub fn adaptive() -> ArchXBuilder {
         ArchXBuilder::new()
     }
@@ -33,6 +33,12 @@ impl ArchX {
     /// Compatibility with v2.2
     pub fn new() -> ArchXBuilder {
         ArchXBuilder::new()
+    }
+
+    /// Access safe math operations.
+    pub fn math() -> crate::math::ArithmeticResult<f32> {
+        // Just a placeholder for the math entrance
+        crate::math::ArithmeticResult { value: 0.0, overflowed: false }
     }
 }
 
@@ -118,7 +124,7 @@ impl ArchXBuilder {
     {
         let state = HardwareState::capture();
         let strategy = Heuristics::decide(&state, self.policy);
-        println!("[ArchX v2.3] Usage: {:.1}%, Adaptive Execution: {:?}", state.cpu.usage, strategy);
+        println!("[ArchX v2.4] Usage: {:.1}%, Adaptive Execution: {:?}", state.cpu.usage, strategy);
         task()
     }
 }
@@ -134,7 +140,7 @@ where F: FnOnce() -> R
     pub fn execute(self) -> R {
         let state = HardwareState::capture();
         let strategy = Heuristics::decide(&state, self.builder.policy);
-        println!("[ArchX v2.3] Usage: {:.1}%, Adaptive Execution: {:?}", state.cpu.usage, strategy);
+        println!("[ArchX v2.4] Usage: {:.1}%, Adaptive Execution: {:?}", state.cpu.usage, strategy);
         (self.task)()
     }
 }

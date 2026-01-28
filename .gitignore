@@ -15,3 +15,11 @@ Thumbs.db
 # but for specific versions it is often kept.
 # We'll keep it for now as it's a foundation library.
 # Cargo.lock
+# ArchX Diagnostics
+*.log
+*.csv
+*.json
+*.txt
+panic.txt
+final_check*.txt
+output.txt

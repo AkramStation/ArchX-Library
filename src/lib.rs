@@ -1,4 +1,4 @@
-//! # ArchX v2.3 — Adaptive Resource Intelligence Runtime
+//! # ArchX v2.4 — Adaptive Resource Intelligence Runtime
 //!
 //! Let your hardware decide how to be fast safely.
 
@@ -8,6 +8,7 @@ pub mod decision;
 pub mod execution;
 pub mod runtime;
 pub mod public_api;
+pub mod math;
 
 // Maintain existing modules for backward compatibility
 pub mod cpu;
@@ -25,7 +26,7 @@ pub mod hardware;
 pub mod adaptive;
 
 
-// Re-export core v2.3 API
+// Re-export core v2.4 API
 pub use public_api::ArchX;
 pub use public_api::archx::{engine, archx, ArchXBuilder};
 pub use decision::Policy;
@@ -35,8 +36,10 @@ pub use hardware::{SystemInfo, CpuInfo, GpuInfo, GpuApi};
 pub use system::{add, add_advanced, get_info, get_system_info, WorkloadHints};
 pub use adaptive::AdaptiveEngine;
 pub use async_ops::add_async;
+pub use math::{SafeMath, ArithmeticResult};
+pub use profiler::{JsonExporter, CsvExporter, ReportExporter, get_profiler};
+pub use runtime::ArchXSched;
 pub use optimizer::scheduler::PowerMode;
-pub use profiling::get_profiler;
 
 #[cfg(test)]
 mod tests {

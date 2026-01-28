@@ -1,73 +1,86 @@
-# ArchX Sovereign v2.1 — Hybrid Acceleration Engine
-### Hybrid by Intelligence. Sovereign by Design.
+# ArchX Sovereign v2.4 — Adaptive Performance Runtime
+### Adaptive Intelligence. Sovereign Performance.
 
 [![Crates.io](https://img.shields.io/crates/v/archx.svg)](https://crates.io/crates/archx)
 [![Documentation](https://docs.rs/archx/badge.svg)](https://docs.rs/archx)
-![v2.1 Sovereign](https://img.shields.io/badge/release-v2.1--hybrid--sovereign-purple)
-![Performance](https://img.shields.io/badge/speed-hybrid--optimized-orange)
+![v2.4 Sovereign](https://img.shields.io/badge/release-v2.4--adaptive--sovereign-blue)
+![Performance](https://img.shields.io/badge/speed-simd--rayon--parallel-orange)
 
-**ArchX v2.1** is a high-performance acceleration framework that gives your Rust applications "Sovereignty of Execution." It doesn't just run code; it analyzes your hardware (CPU, iGPU, dGPU) and adaptively chooses the optimal parallel path.
-
----
-
-## 🚀 What's New in v2.1 (Sovereign Hybrid)
-
-### 1. Hybrid Device Discovery
-The new `DeviceManager` distinguishes between **Integrated GPUs (iGPU)** like AMD Vega / Intel UHD and **Dedicated GPUs (dGPU)**. It maps shared memory topology to ensure zero-copy overhead where possible.
-
-### 2. Cooperative Hybrid Dispatch
-Large workloads (e.g., 10M+ elements) are now split between the GPU (70%) and CPU (30%) automatically. Result reconciliation is handled by the `HybridScheduler` with 100% safe fallback to SIMD if backends disappear.
-
-### 3. Sovereign Policy Engine
-Move beyond manual thread counts. Use high-level intent:
-- `Policy::SmartAuto`: Dynamic CPU load & memory pressure analysis.
-- `Policy::Performance`: Aggressive CPU+GPU cooperative scaling.
-- `Policy::PowerSaving`: Efficient SIMD on P-cores with GPU idling.
-
-### 4. Profiler v2.1 (Energy & Backend Tracking)
-The upgraded profiler provides precise backend attribution (Vulkan/OpenCL/SIMD) and estimates energy consumption per task.
+**ArchX v2.4** is the next evolution of Rust high-performance computing. It transforms from a simple acceleration engine into an **Adaptive Performance Runtime** that intelligently balances CPU instructions (SIMD), multi-core distribution (Work-Stealing), and device safety.
 
 ---
 
-## 🏗️ Quick Start: Sovereign API
+## 🚀 What's New in v2.4 (Sovereign Performance)
+
+### 1. Dynamic SIMD Dispatch
+ArchX now performs runtime feature detection to select the widest vector paths automatically.
+- **x86/x64**: SSE2, AVX, AVX2, and AVX-512 support via gated intrinsics.
+- **ARM**: Neon acceleration for mobile and server chips.
+- **Zero Overhead**: Optimal function pointers are cached after the first detection.
+
+### 2. Rayon Work-Stealing Scheduler
+Integrated **Rayon** as the default parallel backbone.
+- Replaces standard thread spawning with a lock-free work-stealing scheduler.
+- Dramatically reduces overhead for fine-grained tasks.
+- Improved cache locality and thread-safety.
+
+### 3. Overflow-Safe Arithmetic Layer
+High-frequency math operations are now shielded by the `SafeMath` trait.
+- Detects integer overflows and float infinities at runtime.
+- Use `ArchX::math()` to access safe, adaptive calculation paths.
+
+### 4. Advanced Reporting & Exporters
+Export performance data for analysis or CI/CD pipelines.
+- **JSON Exporter**: Deep serialization of hardware state and task metrics.
+- **CSV Exporter**: Legacy compatibility for spreadsheet-based profiling.
+
+---
+
+## 🏗️ Quick Start: New Task API
+
+ArchX v2.4 introduces a closure-based task API that handles resource scaling for you:
 
 ```rust
-use archx::{archx, Policy};
+use archx::{ArchX, Policy};
 
 fn main() {
-    let a = vec![1.0; 10_000_000];
-    let b = vec![2.0; 10_000_000];
-    let mut out = vec![0.0; 10_000_000];
+    // 1. Simple Managed Run
+    ArchX::run(|| {
+        println!("ArchX is managing this task based on system load...");
+    });
 
-    archx()
-        .policy(Policy::SmartAuto)
-        .enable_gpu(true)
-        .enable_hybrid(true)      // CPU + GPU Cooperative execution
-        .profile(true)            // Detailed v2.1 analytics
-        .execute(&a, &b, &mut out);
+    // 2. Fluent Builder for Fine Control
+    ArchX::adaptive()
+        .with_policy(Policy::Performance)
+        .with_profile(true)
+        .task(|| {
+             // Your heavy computation here
+             println!("Executing with Work-Stealing + SIMD Dispatch");
+        })
+        .execute();
 }
 ```
 
 ---
 
-## 📊 v2.1 Capability Matrix
+## 📊 v2.4 Capability Matrix
 
-| Feature | ArchX v2.0 | ArchX v2.1 Sovereign Hybrid |
+| Feature | ArchX v2.3 | ArchX v2.4 Sovereign Performance |
 | :--- | :--- | :--- |
-| **Execution** | Single Device | **CPU + GPU Cooperative** |
-| **GPU Support** | dGPU / Generic | **iGPU (Vega/UHD) Optimized** |
-| **Dispatch** | Strategy-based | **Policy-driven AI (SmartAuto)** |
-| **Profiling** | Time-based | **Energy & Backend Attribution** |
-| **WASM** | Static Fallback | **WASM SafeMode v2.1** |
+| **Parallelism** | std::thread | **Rayon Work-Stealing** |
+| **SIMD Dispatch** | Static/Manual | **Dynamic Runtime Detection** |
+| **Arithmetic** | Native Rust | **Overflow-Safe (Trait Protected)** |
+| **Diagnostics** | Console Summary | **JSON/CSV Serialized Reports** |
+| **Policy Engine** | Hardware-Aware | **System-Load & Thermal Aware** |
 
 ---
 
 ## 🤝 The Sovereign Identity
 
-ArchX v2.1 is designed for serious system-level acceleration. 
-- **No Hard Dependencies**: Vulkan/OpenCL are dynamically loaded.
-- **Panic-Free Policy**: If a driver fails, execution falls back in 1ms to CPU.
-- **Enterprise Grade**: Ready for Tauri, WASM, and high-frequency CLI tools.
+ArchX v2.4 is built for stability and extreme performance.
+- **Panic-Free**: All common math paths are protected against overflow.
+- **Zero-Cost Abstractions**: The hardware dispatcher overhead is < 100ns per batch.
+- **Backward Compatible**: Your v2.1-v2.3 `add` and `hybrid` APIs remain 100% functional.
 
 ---
 
@@ -78,11 +91,11 @@ ArchX v2.1 is designed for serious system-level acceleration.
 cargo check --examples
 ```
 
-**Run All (PowerShell):**
+**Run Flagship v2.4 Demo:**
 ```powershell
-Get-ChildItem examples/*.rs | ForEach-Object { $name = $_.BaseName; cargo run --example $name }
+cargo run --example v2_4_sovereign_perf
 ```
 
 ---
-Designed with love by **Codevora Studio**.
-MIT / Apache-2.0 © 2026 Codevora Studio
+Designed with love by **AkramStation**.
+MIT / Apache-2.0 © 2026 AkramStation

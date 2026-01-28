@@ -1,3 +1,5 @@
-pub struct Governor;
-pub struct Protection;
-pub struct Scheduler;
+pub mod governor;
+pub mod protection;
+pub mod scheduler;
+
+pub use scheduler::ArchXSched;
