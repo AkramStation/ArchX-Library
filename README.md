@@ -3,7 +3,7 @@
 **ArchX** is a primitive but solid CPU-aware optimization foundation for Rust. It provides a clean, modular architecture for detecting CPU features at runtime and dispatching optimized execution paths, ensuring performance without sacrificing safety or portability.
 
 > [!NOTE]
-> This is **v0.7** (Adaptive & Async). It introduces **adaptive runtime heuristics**, **asynchronous execution paths**, and an **extensible plugin system** for enterprise-grade performance and ergonomics.
+> This is **v0.8** (Full Verification). This mission-critical release adds **exhaustive consistency testing**, **1B+ element stress tests**, a **profiling layer**, and **verified universal integration** for CLI, Tauri, and WASM.
 
 ---
 

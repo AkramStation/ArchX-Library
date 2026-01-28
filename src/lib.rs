@@ -10,6 +10,7 @@ pub mod diagnostics;
 pub mod integration;
 pub mod plugin;
 pub mod async_ops;
+pub mod profiling;
 
 /// Public API gateway for common operations.
 pub use system::{add, add_advanced, get_info, WorkloadHints};
