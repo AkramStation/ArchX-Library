@@ -1,15 +1,21 @@
-/// Configuration hints for workload execution.
-/// 
-/// WHY: Advanced users may want to tune the thread count or chunk size 
-/// based on their specific hardware or workload characteristics.
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, serde::Serialize)]
+pub enum PowerMode {
+    #[default]
+    Balanced,
+    HighPerformance,
+    PowerSaving,
+}
+
+/// Advanced performance tuning hints for ArchX operations.
+#[derive(Debug, Clone, Copy, Default, serde::Serialize)]
 pub struct WorkloadHints {
-    /// Desired number of threads (0 means auto-detect).
     pub thread_count: Option<usize>,
-    /// Minimum elements per chunk.
     pub min_chunk_size: Option<usize>,
-    /// Whether to attempt GPU offload if possible.
     pub prefer_gpu: bool,
+    /// v0.9: Max percentage of available cores to use (0.0 to 1.0)
+    pub max_cpu_usage: Option<f32>,
+    /// v0.9: Operational mode for thermal/battery efficiency
+    pub power_mode: PowerMode,
 }
 
 /// Cache-aware scheduler for partitioning workloads.

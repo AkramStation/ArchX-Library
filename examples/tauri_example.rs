@@ -30,7 +30,7 @@ fn archx_add(a: Vec<f32>, b: Vec<f32>) -> CommandResponse {
 }
 
 fn main() {
-    println!("ArchX v0.6 - Tauri Integration Example");
+    println!("ArchX v0.8 - Tauri Integration Example");
     println!("---------------------------------------");
     
     let a = vec![10.0; 100];

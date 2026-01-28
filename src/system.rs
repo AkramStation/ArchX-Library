@@ -43,26 +43,27 @@ pub fn add(a: &[f32], b: &[f32], out: &mut [f32]) {
 
 /// An advanced addition operation that accepts performance tuning hints.
 pub fn add_advanced(a: &[f32], b: &[f32], out: &mut [f32], hints: WorkloadHints) {
-    // 1. Check for GPU offloading request
-    if hints.prefer_gpu {
-        let gpu_result = gpu::with_backend(|backend| {
-            backend.add(a, b, out)
-        });
+    let info = crate::hardware::HardwareInfo::detect();
+    let strategy = crate::adaptive::AdaptiveEngine::choose_strategy(a.len(), &hints, &info);
 
-        if let Some(Ok(_)) = gpu_result {
-            return;
+    match strategy {
+        crate::adaptive::Strategy::GpuOffload => {
+            let gpu_result = gpu::with_backend(|backend| backend.add(a, b, out));
+            if let Some(Ok(_)) = gpu_result { return; }
+            // Fallback to parallel if GPU fails
+            parallel::add_parallel_impl(a, b, out, &hints);
         }
-    }
-
-    // 2. CPU Execution path (Adaptive decision)
-    let len = a.len();
-    let thread_hint = hints.thread_count.unwrap_or(0);
-    
-    // Adaptive Trigger: If size > Threshold OR user manually requested > 1 thread.
-    if (len >= PARALLEL_THRESHOLD && thread_hint != 1) || thread_hint > 1 {
-        parallel::add_parallel_impl(a, b, out, &hints);
-    } else {
-        Selector::dispatch_add(a, b, out);
+        crate::adaptive::Strategy::ParallelSimd(n) => {
+            let mut active_hints = hints.clone();
+            active_hints.thread_count = Some(n);
+            parallel::add_parallel_impl(a, b, out, &active_hints);
+        }
+        crate::adaptive::Strategy::SingleThreadSimd => {
+            Selector::dispatch_add(a, b, out);
+        }
+        crate::adaptive::Strategy::ScalarFallback => {
+            crate::optimizer::scalar::add_impl(a, b, out);
+        }
     }
 }
 

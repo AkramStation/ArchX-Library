@@ -11,9 +11,12 @@ pub mod integration;
 pub mod plugin;
 pub mod async_ops;
 pub mod profiling;
+pub mod hardware;
+pub mod adaptive;
 
 /// Public API gateway for common operations.
 pub use system::{add, add_advanced, get_info, WorkloadHints};
+pub use optimizer::scheduler::PowerMode;
 pub use async_ops::add_async;
 pub use optimizer::gpu::{register_backend, GpuBackend};
 

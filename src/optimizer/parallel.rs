@@ -7,6 +7,7 @@ use crate::optimizer::scheduler::{Scheduler, WorkloadHints};
 /// WHY: v0.5 introduces cache-aware chunking and user-provided hints 
 /// to maximize throughput on high-core-count and AVX-512 systems.
 pub fn add_parallel_impl(a: &[f32], b: &[f32], out: &mut [f32], hints: &WorkloadHints) {
+    let _scope = crate::profiling::ProfileScope::new("Parallel Add (Master)", None);
     let len = a.len().min(b.len()).min(out.len());
     
     // Determine the number of threads.
@@ -39,6 +40,7 @@ pub fn add_parallel_impl(a: &[f32], b: &[f32], out: &mut [f32], hints: &Workload
                 let out_slice = std::slice::from_raw_parts_mut(out_ptr, end - start);
                 
                 s.spawn(move || {
+                    let _thread_scope = crate::profiling::ProfileScope::new("Parallel Chunk", Some(start / chunk_size));
                     add_fn(a_chunk, b_chunk, out_slice);
                 });
             }

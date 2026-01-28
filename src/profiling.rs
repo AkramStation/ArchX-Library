@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex, OnceLock};
+use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant};
 use std::collections::HashMap;
 
@@ -55,6 +55,21 @@ impl Profiler {
         } else {
             Vec::new()
         }
+    }
+
+    /// Exports metrics as a JSON string.
+    pub fn to_json(&self) -> String {
+        serde_json::to_string_pretty(&self.get_snapshot()).unwrap_or_else(|_| "[]".into())
+    }
+
+    /// Exports metrics as a basic CSV string.
+    pub fn to_csv(&self) -> String {
+        let snapshot = self.get_snapshot();
+        let mut csv = String::from("name,duration_ms,thread_id\n");
+        for m in snapshot {
+            csv.push_str(&format!("{},{},{:?}\n", m.name, m.duration.as_secs_f16() * 1000.0, m.thread_id));
+        }
+        csv
     }
 }
 
