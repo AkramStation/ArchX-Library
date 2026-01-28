@@ -1,102 +1,111 @@
-use crate::detect::HardwareState;
-use crate::decision::{Heuristics, Policy};
-use crate::profiler::TaskMetrics;
-use crate::system::WorkloadHints;
-use crate::optimizer::scheduler::PowerMode;
+use crate::decision::Policy;
 
+/// The central entry point for the ArchX library.
+///
+/// `ArchX` provides static methods to quickly run tasks or start building 
+/// complex configurations using the Fluent API.
 pub struct ArchX;
 
 impl ArchX {
-    /// Simply runs a task with adaptive optimization.
+    /// Simply runs a task with automatic adaptive optimization.
+    ///
+    /// The runtime will analyze the system state and execute the closure 
+    /// using the most efficient local strategy (CPU/SIMD).
+    ///
+    /// # Example
+    /// ```rust
+    /// use archx::ArchX;
+    /// let val = ArchX::run(|| 42);
+    /// assert_eq!(val, 42);
+    /// ```
     pub fn run<F, R>(task: F) -> R 
     where 
         F: FnOnce() -> R 
     {
-        let state = HardwareState::capture();
-        let strategy = Heuristics::decide(&state, Policy::Balanced);
-        
-        let mut _metrics = TaskMetrics::new();
-        // For ArchX v2.4, we log the strategy and usage
-        println!("[ArchX v2.4] Usage: {:.1}%, Strategy: {:?}", state.cpu.usage, strategy);
-        
-        let result = task();
-        
-        _metrics.complete();
-        result
+        Self::compute().run(task)
     }
 
-    /// Builder style for more control (v2.4).
+    /// Creates a builder for configuring the core ArchX engine (legacy).
+    /// Used for setting global policies like memory limits or profiling.
     pub fn adaptive() -> ArchXBuilder {
         ArchXBuilder::new()
     }
 
-    /// Compatibility with v2.2
+    /// Compatibility alias for `adaptive()`.
     pub fn new() -> ArchXBuilder {
         ArchXBuilder::new()
     }
 
-    /// Access safe math operations.
-    pub fn math() -> crate::math::ArithmeticResult<f32> {
-        // Just a placeholder for the math entrance
-        crate::math::ArithmeticResult { value: 0.0, overflowed: false }
+    /// Main entry point for the v3.0 Sovereign Fluent API.
+    ///
+    /// Provides a unified, chainable interface for high-performance math 
+    /// and task execution across CPU, GPU, and Hybrid backends.
+    ///
+    /// # Example
+    /// ```rust
+    /// use archx::{ArchX, Policy};
+    /// ArchX::compute()
+    ///     .with_policy(Policy::Performance)
+    ///     .enable_gpu(true)
+    ///     .sum(&[1.0, 2.0, 3.0]);
+    /// ```
+    pub fn compute() -> crate::public_api::sovereign::SovereignBuilder {
+        crate::public_api::sovereign::SovereignBuilder::new()
+    }
+
+    /// Access the specialized high-performance math engine (legacy).
+    pub fn math() -> crate::public_api::math_api::MathBuilder {
+        crate::public_api::math_api::MathBuilder::new()
     }
 }
 
+/// A configuration builder for the ArchX runtime.
 pub struct ArchXBuilder {
     policy: Policy,
-    hints: WorkloadHints,
     profiling_enabled: bool,
+    gpu_enabled: bool,
 }
 
 impl ArchXBuilder {
     pub fn new() -> Self {
         Self { 
             policy: Policy::Balanced,
-            hints: WorkloadHints::default(),
             profiling_enabled: false,
+            gpu_enabled: true,
         }
     }
 
+    /// Sets the execution policy for the runtime.
+    /// Default is `Policy::Balanced`.
     pub fn with_policy(mut self, policy: Policy) -> Self {
         self.policy = policy;
-        self.hints.policy = policy;
         self
     }
 
+    /// Fluent alias for `with_policy`.
     pub fn policy(self, policy: Policy) -> Self {
         self.with_policy(policy)
     }
 
+    /// Enables or disables real-time profiling.
+    /// If enabled, metrics will be collected for subsequent operations.
     pub fn with_profile(mut self, enabled: bool) -> Self {
         self.profiling_enabled = enabled;
         self
     }
 
+    /// Fluent alias for `with_profile`.
     pub fn profile(self, enabled: bool) -> Self {
         self.with_profile(enabled)
     }
 
-    pub fn with_power_mode(mut self, mode: PowerMode) -> Self {
-        self.hints.power_mode = mode;
-        self
-    }
-
-    pub fn with_limits(mut self, cpu_usage: f32) -> Self {
-        self.hints.max_cpu_usage = Some(cpu_usage.clamp(0.0, 1.0));
-        self
-    }
-
+    /// Explicitly enables or disables GPU offloading for this builder's context.
     pub fn enable_gpu(mut self, enabled: bool) -> Self {
-        self.hints.enable_gpu = enabled;
-        self.hints.prefer_gpu = enabled;
+        self.gpu_enabled = enabled;
         self
     }
 
-    pub fn enable_hybrid(mut self, enabled: bool) -> Self {
-        self.hints.prefer_hybrid = enabled;
-        self
-    }
-
+    /// Wraps a closure as an ArchX task with the current builder's configuration.
     pub fn task<F, R>(self, task: F) -> TaskBuilder<F> 
     where F: FnOnce() -> R 
     {
@@ -106,26 +115,31 @@ impl ArchXBuilder {
         }
     }
 
-    /// Executes the addition operation (Legacy/v2.1 Compatibility).
+    /// Executes a simple vector addition using legacy dispatch.
+    ///
+    /// # Safety
+    /// All slice lengths must match.
     pub fn execute(self, a: &[f32], b: &[f32], out: &mut [f32]) {
-        if self.profiling_enabled {
-            crate::profiling::get_profiler().set_enabled(true);
-        }
-        crate::system::add_advanced(a, b, out, self.hints);
+        let _ = self.to_sovereign().add(a, b, out);
     }
 
-    /// Legacy alias for execute.
+    /// Legacy alias for `execute`.
     pub fn add(self, a: &[f32], b: &[f32], out: &mut [f32]) {
         self.execute(a, b, out);
     }
 
+    /// Executes the task closure immediately and returns the result.
     pub fn run_task<F, R>(self, task: F) -> R 
     where F: FnOnce() -> R 
     {
-        let state = HardwareState::capture();
-        let strategy = Heuristics::decide(&state, self.policy);
-        println!("[ArchX v2.4] Usage: {:.1}%, Adaptive Execution: {:?}", state.cpu.usage, strategy);
-        task()
+        self.to_sovereign().run(task)
+    }
+
+    fn to_sovereign(self) -> crate::public_api::sovereign::SovereignBuilder {
+        crate::public_api::ArchX::compute()
+            .with_policy(self.policy)
+            .profile(self.profiling_enabled)
+            .enable_gpu(self.gpu_enabled)
     }
 }
 
@@ -138,10 +152,7 @@ impl<F, R> TaskBuilder<F>
 where F: FnOnce() -> R
 {
     pub fn execute(self) -> R {
-        let state = HardwareState::capture();
-        let strategy = Heuristics::decide(&state, self.builder.policy);
-        println!("[ArchX v2.4] Usage: {:.1}%, Adaptive Execution: {:?}", state.cpu.usage, strategy);
-        (self.task)()
+        self.builder.to_sovereign().run(self.task)
     }
 }
 
@@ -151,6 +162,6 @@ pub fn engine() -> ArchXBuilder {
 }
 
 /// Helper for the fluent API.
-pub fn archx() -> ArchXBuilder {
-    ArchXBuilder::new()
+pub fn archx() -> crate::public_api::sovereign::SovereignBuilder {
+    crate::public_api::sovereign::SovereignBuilder::new()
 }

@@ -2,14 +2,14 @@ use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant};
 use std::collections::HashMap;
 
-/// Represents a single execution metric in v2.0.0.
+/// Represents a single execution metric in v3.0.0.
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct Metric {
     pub name: String,
     pub backend: String,   // "SIMD", "Vulkan", "OpenCL"
     pub device: String,    // "CPU", "iGPU", "dGPU"
     pub duration: Duration,
-    pub energy_estimate: f32, // New in v2.1 (estimated power draw)
+    pub energy_estimate: f32, // estimated power draw
     pub thread_id: Option<usize>,
     pub metadata: HashMap<String, String>,
 }
@@ -81,7 +81,7 @@ impl Profiler {
             return;
         }
 
-        println!("\n\x1b[1;36m┌── ArchX Sovereign v2.1 Profile ───────────────────────────────┐\x1b[0m");
+        println!("\n\x1b[1;36m┌── ArchX Sovereign v3.0 Profile ───────────────────────────────┐\x1b[0m");
         println!("│ \x1b[1m{:<18}\x1b[0m │ \x1b[1m{:<10}\x1b[0m │ \x1b[1m{:<10}\x1b[0m │ \x1b[1m{:<12}\x1b[0m │", "Task", "Device", "Backend", "Time (ms)");
         println!("├────────────────────┼────────────┼───────────┼────────────────┤");
         for m in snapshot {
@@ -126,7 +126,7 @@ impl ProfileScope {
 impl Drop for ProfileScope {
     fn drop(&mut self) {
         let duration = self.start.elapsed();
-        // Estimated energy profile (v2.1 placeholder logic)
+        // Estimated energy profile (placeholder logic)
         // Energy = Duration * BasePower (CPU ~45W, iGPU ~15W)
         let energy_multiplier = if self.device.contains("GPU") { 15.0 } else { 45.0 };
         let energy_estimate = duration.as_secs_f32() * energy_multiplier;

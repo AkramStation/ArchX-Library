@@ -2,12 +2,16 @@ use std::future::Future;
 use std::pin::Pin;
 use crate::system::{add_advanced, WorkloadHints};
 
-/// Experimental: Async implementation of the add operation.
+/// Asynchronous implementation of the vectorized addition operation.
 /// 
-/// WHY: v0.7 adds async support to avoid blocking the main thread (or Tauri UI thread)
-/// during massive computations. It integrates both CPU-parallel and GPU paths.
+/// This function avoids blocking the calling thread by offloading the 
+/// computation to a background task. It automatically selects between 
+/// GPU-accelerated and multi-threaded CPU paths based on the provided `WorkloadHints`.
+///
+/// # Returns
+/// A `Future` that resolves to a `Vec<f32>` containing the element-wise sum of `a` and `b`.
 pub fn add_async(a: Vec<f32>, b: Vec<f32>, hints: WorkloadHints) -> Pin<Box<dyn Future<Output = Vec<f32>> + Send>> {
-    let _scope = crate::profiling::ProfileScope::new("Async Operation", "CPU", "Async");
+    let _scope = crate::profiler::ProfileScope::new("Async Operation", "CPU", "Async");
     Box::pin(async move {
         // 1. Try GPU async path if preferred
         if hints.prefer_gpu {

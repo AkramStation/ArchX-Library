@@ -1,16 +1,16 @@
-use std::thread;
 use crate::cpu::features::CpuFeatures;
-use crate::cpu::arch::{detect_arch, CpuArch};
-use crate::cpu::bits::{detect_bits, Bitness};
+use crate::cpu::arch::CpuArch;
+use crate::cpu::bits::Bitness;
 
 /// Aggregated information about the host CPU.
-#[derive(Debug, Clone, Copy, serde::Serialize)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct CpuInfo {
     pub arch: CpuArch,
     pub bits: Bitness,
     pub features: CpuFeatures,
     pub cores: usize,
     pub logical_processors: usize,
+    pub brand: String,
 }
 
 /// Information about a detected GPU device.
@@ -34,7 +34,7 @@ pub enum GpuApi {
     Mock,
 }
 
-/// The unified source of truth for system hardware in v2.0.0.
+/// The unified source of truth for system hardware in v3.0.0.
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct SystemInfo {
     pub cpu: CpuInfo,
@@ -45,33 +45,32 @@ pub struct SystemInfo {
 impl SystemInfo {
     /// Gathers all hardware information.
     pub fn detect() -> Self {
-        let logical = thread::available_parallelism().map(|n| n.get()).unwrap_or(1);
-        let physical = (logical / 2).max(1);
+        let state = crate::detect::HardwareState::capture();
 
         let cpu = CpuInfo {
-            arch: detect_arch(),
-            bits: detect_bits(),
-            features: CpuFeatures::detect(),
-            cores: physical,
-            logical_processors: logical,
+            arch: state.cpu.arch,
+            bits: crate::cpu::bits::detect_bits(),
+            features: crate::cpu::features::CpuFeatures::detect(),
+            cores: state.cpu.physical_cores,
+            logical_processors: state.cpu.logical_threads,
+            brand: state.cpu.brand,
         };
 
-        // v2.2: Unified descriptive hardware detection
-        let gpu = crate::gpu::get_active_backend_name().map(|name| {
+        let gpu = state.gpu.map(|g| {
             GpuInfo {
-                name,
-                vendor: Some("Probed Device".to_string()),
+                name: g.name,
+                vendor: Some(g.vendor),
                 memory_gb: Some(4.0),
-                api: Some("Vulkan".to_string()), 
-                is_integrated: true,
-                memory_shared: true,
+                api: Some("Auto-Detected-Driver".to_string()),
+                is_integrated: g.is_integrated,
+                memory_shared: g.shared_memory,
             }
         });
 
         Self {
             cpu,
             gpu,
-            available_memory_gb: 8.0, // Baseline detection
+            available_memory_gb: (state.memory.total_kb as f64) / 1024.0 / 1024.0,
         }
     }
 

@@ -2,7 +2,7 @@
 use std::arch::aarch64::*;
 use crate::optimizer::scalar;
 
-/// AArch64 NEON implementation of the add operation with v2.0 loop unrolling.
+/// AArch64 NEON implementation of the add operation with v3.0 loop unrolling.
 /// 
 /// Process 16 floats per iteration (4x q registers). This provides 
 /// high performance on Apple Silicon and modern ARM64 servers.

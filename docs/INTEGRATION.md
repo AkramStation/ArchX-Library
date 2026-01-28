@@ -1,18 +1,36 @@
 # Integration Guide: Tauri & WASM
 
-ArchX v1.1 is designed to be a "backend engine" for cross-platform applications.
+ArchX Sovereign v3.0 is designed to be a "backend engine" for cross-platform applications.
 
 ## Tauri Integration
 
 Tauri apps benefit from ArchX's async-by-default compute paths.
 
-### Pattern: The Async Command
-Avoid blocking the webview thread by using the ArchX async bridge:
+### Pattern: High-Performance Math (v3.0 Sovereign)
+ArchX v3.0 provides a unified, chainable math API with built-in error handling:
 
 ```rust
 #[tauri::command]
-async fn compute_heavy(data: Vec<f32>) -> Result<Vec<f32>, String> {
-    Ok(archx::add_async(data.clone(), data, WorkloadHints::default()).await)
+fn dot_product(a: Vec<f32>, b: Vec<f32>) -> Result<f32, String> {
+    archx::ArchX::compute()
+        .with_mode(archx::MathMode::Fast)
+        .dot(&a, &b)
+        .map_err(|e| e.to_string())
+}
+```
+
+### Pattern: Hybrid GPU Computation (v3.0)
+Leverage GPU compute with simple chaining and resilience:
+
+```rust
+#[tauri::command]
+fn compute_hybrid(a: Vec<f32>, b: Vec<f32>) -> Result<Vec<f32>, String> {
+    let mut out = vec![0.0; a.len()];
+    archx::ArchX::compute()
+        .with_gpu(archx::GpuPolicy::Adaptive)
+        .add(&a, &b, &mut out)
+        .map_err(|e| e.to_string())?;
+    Ok(out)
 }
 ```
 

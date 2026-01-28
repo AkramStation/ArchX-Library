@@ -2,19 +2,23 @@
 
 Our mission is to build the most intelligent, adaptive acceleration engine for the Rust ecosystem.
 
-## v1.2 (Current)
-- [x] Fluent Builder API (`ArchXEngine`).
-- [x] Professional Diagnostics & Human-Readable Profiling.
-- [x] Major Ecosystem Branding & Documentation.
+## v3.0 (Current - Sovereign Performance)
+- [x] **Core Engine Architecture**: Modular, layered hardware abstraction.
+- [x] **Sovereign Fluent API**: Unified, chainable interface for CPU/GPU/Hybrid.
+- [x] **Unified Scheduler**: Adaptive workload splitting with resource awareness.
+- [x] **Safe Math Primitives**: Deeply integrated arithmetic safety modes.
+- [x] **Global Hardware Registry**: Dynamic SIMD and GPU vendor discovery.
 
-## v1.3 - The Extension Era
-- [ ] **Plugin System**: Allow users to register custom optimizer paths for domain-specific math.
-- [ ] **ARM Parity**: First-class support for ARM Neon (Apple Silicon / Raspberry Pi).
-- [ ] **Dynamic Throttling**: Automatically reduce thread count if system temperature or battery level is critical.
+## v3.1 - The Resilience Update
+- [ ] **Thermal Polling**: Dynamic throttling based on core temperatures.
+- [ ] **Power Management**: Battery-aware execution modes for mobile workstations.
+- [ ] **Memory Protection**: Enhanced heap limits and guard rails for multi-gigabyte datasets.
 
-## v1.4 - Distributed Compute
-- [ ] **Network Offload**: Experimental support for offloading compute to remote ArchX nodes.
-- [ ] **Visual Profiler**: A web-based dashboard for real-time visualization of engine decisions.
+## v4.0 - The Neural Horizon
+- [ ] **ML Integration**: Built-in support for simple tensor operations and neutral net kernels.
+- [ ] **Remote Compute**: Zero-config distributed execution across ArchX nodes.
+- [ ] **Visual Profiler**: Real-time dashboard for hardware utilization and strategy metrics.
 
 ---
-Stay tuned!
+Designed with 🦀 by AkramStation.
+MIT / Apache-2.0 © 2026 AkramStation

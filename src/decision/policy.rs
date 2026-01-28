@@ -6,7 +6,7 @@ pub enum Policy {
     Balanced,
     PowerSaving,
     ProtectDevice, // Special mode for thermal/battery issues
-    SmartAuto,     // Backward compatibility for v2.1
+    SmartAuto,     // Backward compatibility for legacy v2.x
 }
 
 impl Default for Policy {

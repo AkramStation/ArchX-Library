@@ -1,43 +1,32 @@
-# ArchX v2.4 Adaptive Performance Engine
+# ArchX v3.0 Sovereign Fluent Engine
 
-The ArchX v2.4 engine has evolved from a simple heuristic selector into a **Real-Time Adaptive Runtime**. It doesn't just check hardware features; it monitors system load and thermal status to ensure performance never compromises stability.
+The ArchX v3.0 engine is a **Unified Hybrid Runtime**. It consolidates CPU SIMD, multi-core parallelism, and GPU Compute into a single, chainable fluent interface that prioritizes safety and developer ergonomics.
 
-## Core Optimization Pillars (v2.4)
+## Core Pillars (v3.0)
 
-### 1. Unified Hardware Topology
-The engine maintains a deep map of the host machine:
-- **Instruction Sets**: Dynamic SSE2, AVX, AVX2, AVX-512, and Neon detection.
-- **Micro-Architecture**: Distinguishes between Performance (P) and Efficiency (E) cores (leveraging `rayon` core affinity).
-- **GPU Backends**: Dynamic Vulkan/OpenCL loading with unified memory awareness.
+### 1. Unified Sovereign Builder
+v3.0 replaces multiple disparate builders with the `SovereignBuilder`. Accessed via `ArchX::compute()`, it serves as the universal orchestration point for all tasks.
 
-### 2. Work-Stealing Scheduling
-By switching to **Rayon**, v2.4 eliminates the "tail latency" problem found in standard thread spawning.
-- **Theft-Based Balancing**: If one core is busier (due to background OS processes), other cores "steal" its tasks to finish work faster.
-- **Cache Locality**: Rayon ensures that chunks are split logically to fit into L1/L2 caches.
+### 2. Error-First Design
+Every mathematical and compute operation in v3.0 returns an `ArchXResult`. This ensures that issues like slice mismatches, GPU context losses, or arithmetic overflows are handled as data rather than crashes.
 
-### 3. Load-Aware Heuristics
-The decision matrix now incorporates **System Load %** from the `detect` module.
+### 3. Cooperative Hybrid Scheduling
+The engine manages the "Crossover Point":
+- **Small Tasks**: Executed on CPU SIMD to avoid bus latency.
+- **Large Tasks**: Split (70/30) between GPU and CPU to maximize total system throughput.
+- **Policy Influence**:
+    - `Policy::Speed`: Prioritizes GPU offloading for even moderately sized tasks.
+    - `Policy::Balanced`: Uses a heuristics-based split to minimize total energy per computation.
+    - `Policy::Privacy`: Restricts computation to the CPU to avoid data exposure on shared GPU buses.
 
-#### v2.4 Execution Strategy Matrix
+## The v3.0 API Standard
 
-| Load % | Dataset Size | Policy | Final Strategy |
-| :--- | :--- | :--- | :--- |
-| Any | < 4,096 | Any | **Scalar/SIMD ST** (Avoid thread overhead) |
-| < 40% | > 32k | Performance | **Rayon Parallel (Full Capacity)** |
-| 40-80% | > 32k | Balanced | **Rayon Parallel (50% Threads)** |
-| > 90% | Any | Any | **Throttled (Safe Sequential)** |
-| Any | > 5M | SmartAuto | **iGPU/Hybrid Dispatch** |
-
-## Intelligent SIMD Dispatching
-v2.4 uses a **Function Pointer Cache (FPC)**. Upon first execution:
-1. `SimdDispatcher` queries `CpuFeatures`.
-2. It selects the widest available SIMD width (e.g., AVX2).
-3. It locks that function pointer in memory.
-4. Subsequent calls are direct function jumps with zero branching overhead.
-
-## Device Protection Governance
-- **Thermal Awareness**: When `Policy::ProtectDevice` is active, the engine monitors `sysinfo` thermal thresholds.
-- **Battery Scaling**: Automatically disables high-power GPU paths when on battery power (Windows/Linux only).
+| Feature | Legacy (v2.x) | Sovereign (v3.0) |
+| :--- | :--- | :--- |
+| **Entry Point** | `ArchX::new()` | `ArchX::compute()` |
+| **Chaining** | Limited | **Full Fluent Chain** |
+| **Error Handling** | Panics/Boilerplate | **ArchXResult (Type-Safe)** |
+| **Functional** | Imperative | **Map/Reduce Friendly** |
 
 ---
-*ArchX v2.4: Sovereign Performance for the Modern Hardware Ecosystem.*
+*ArchX v3.0: Sovereign Performance, Unified.*

@@ -1,6 +1,4 @@
-use crate::dispatch::select::Selector;
 pub use crate::optimizer::scheduler::WorkloadHints;
-use crate::optimizer::parallel;
 use crate::hardware::SystemInfo;
 
 /// Publicly exposed CPU information.
@@ -32,39 +30,17 @@ pub fn add(a: &[f32], b: &[f32], out: &mut [f32]) {
     add_advanced(a, b, out, WorkloadHints::default());
 }
 
-/// An advanced addition operation that accepts performance tuning hints.
-/// 
-/// Use this if you need fine-grained control over thread counts, power modes,
-/// or resource capping (e.g., in background tasks or battery-critical scenarios).
 pub fn add_advanced(a: &[f32], b: &[f32], out: &mut [f32], hints: WorkloadHints) {
-    let info = SystemInfo::detect();
-    let strategy = crate::adaptive::AdaptiveEngine::choose_strategy(a.len(), &hints, &info);
-
-    match strategy {
-        crate::adaptive::Strategy::GpuOffload => {
-            let gpu_result = crate::gpu::with_backend(|backend: &dyn crate::gpu::GpuBackend| backend.add(a, b, out));
-            if let Some(Ok(_)) = gpu_result { return; }
-            // Fallback to parallel if GPU fails
-            parallel::add_parallel_impl(a, b, out, &hints);
-        }
-        crate::adaptive::Strategy::Hybrid => {
-            crate::dispatch::hybrid::HybridScheduler::dispatch(a, b, out);
-        }
-        crate::adaptive::Strategy::ParallelSimd(n) => {
-            let mut active_hints = hints;
-            active_hints.thread_count = Some(n);
-            parallel::add_parallel_impl(a, b, out, &active_hints);
-        }
-        crate::adaptive::Strategy::SingleThreadSimd => {
-            Selector::dispatch_add(a, b, out);
-        }
-        crate::adaptive::Strategy::ScalarFallback => {
-            crate::optimizer::scalar::add_impl(a, b, out);
-        }
+    let mut builder = crate::public_api::ArchX::compute();
+    
+    if let Some(n) = hints.thread_count {
+        builder = builder.max_threads(n);
     }
+
+    let _ = builder.add(a, b, out);
 }
 
-/// Returns the detected system info in v2.0 format.
+/// Returns the detected system info in v3.0 format.
 pub fn get_info() -> CpuInfo {
     SystemInfo::detect().cpu
 }

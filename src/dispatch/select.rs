@@ -14,12 +14,12 @@ pub enum DispatchPath {
     AVX,
     AVX2,
     AVX512,
-    Neon, // v2.0 ARM64 path
+    Neon, // Sovereign v3.0 ARM64 path
 }
 
 /// A selector that decides which implementation path to use based on CPU features.
 /// 
-/// Refactored in v0.5 to support AVX-512.
+/// Feature-aware selector for optimization paths.
 pub struct Selector;
 
 static CACHED_ADD_FN: OnceLock<AddFn> = OnceLock::new();
@@ -86,11 +86,6 @@ impl Selector {
 
     /// Dispatches the 'add' operation using the cached optimal path.
     pub fn dispatch_add(a: &[f32], b: &[f32], out: &mut [f32]) {
-        // v0.7: Check extensible plugin systems first
-        if crate::plugin::try_plugins(a, b, out) {
-            return;
-        }
-
         let func = Self::get_add_fn();
         func(a, b, out);
     }

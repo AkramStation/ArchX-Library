@@ -15,4 +15,6 @@ fn test_cpu_detection_accuracy() {
     // We don't assert true for AVX/AVX2 because they might not be available
     // but we can assert that architecture is not Unknown.
     assert_ne!(info.arch, archx::cpu::arch::CpuArch::Unknown, "CPU Architecture should be detectable");
+    assert!(!info.brand.is_empty(), "CPU Brand should not be empty");
+    assert_ne!(info.brand, "Unknown", "CPU Brand should be detectable on this hardware");
 }

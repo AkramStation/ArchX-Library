@@ -3,14 +3,14 @@ use crate::optimizer::scheduler::{WorkloadHints, PowerMode};
 
 pub use crate::decision::Policy;
 
-/// The strategy chosen by the adaptive engine in v2.0.0.
+/// The strategy chosen by the adaptive engine in Sovereign v3.0.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Strategy {
     ScalarFallback,
     SingleThreadSimd,
     ParallelSimd(usize), // Active thread count
     GpuOffload,
-    Hybrid, // New in v2.1
+    Hybrid,
 }
 
 /// A smart engine that decides the best compute path at runtime.
@@ -19,9 +19,9 @@ pub struct AdaptiveEngine;
 impl AdaptiveEngine {
     /// Decides the best strategy based on data size and system state.
     pub fn choose_strategy(len: usize, hints: &WorkloadHints, info: &SystemInfo) -> Strategy {
-        // v2.0 Production Guard: Memory Check
+        // Sovereign Production Guard: Memory Check
         if !info.can_handle_dataset(len) {
-            println!("[ArchX v2.0 WARNING] Dataset size {} exceeds safe memory limits. Forcing SingleThreadSimd.", len);
+            println!("[ArchX Sovereign v3.0 WARNING] Dataset size {} exceeds safe memory limits. Forcing SingleThreadSimd.", len);
             return Strategy::SingleThreadSimd;
         }
 
@@ -38,7 +38,7 @@ impl AdaptiveEngine {
         }
 
         // 2. Extremely small datasets should avoid SIMD/Parallel setup costs.
-        // v2.0 Threshold: 1024 elements (cache-line optimized)
+        // Threshold: 1024 elements (cache-line optimized)
         if len < 1024 {
             return Strategy::ScalarFallback;
         }

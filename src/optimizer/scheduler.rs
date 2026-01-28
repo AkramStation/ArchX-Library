@@ -9,16 +9,16 @@ pub enum PowerMode {
 /// Advanced performance tuning hints for ArchX operations.
 #[derive(Debug, Clone, Copy, serde::Serialize)]
 pub struct WorkloadHints {
-    /// v0.9: Operational mode for thermal/battery efficiency
+    /// Operational mode for thermal/battery efficiency
     pub power_mode: PowerMode,
-    /// v0.9: Max percentage of available cores to use (0.0 to 1.0)
+    /// Max percentage of available cores to use (0.0 to 1.0)
     pub max_cpu_usage: Option<f32>,
     pub thread_count: Option<usize>,
     pub min_chunk_size: Option<usize>,
     pub prefer_gpu: bool,
-    pub prefer_hybrid: bool,    // New in v2.1
-    pub enable_gpu: bool,      // New in v2.1
-    pub policy: crate::decision::Policy, // Updated in v2.3
+    pub prefer_hybrid: bool,
+    pub enable_gpu: bool,
+    pub policy: crate::decision::Policy,
 }
 
 impl Default for WorkloadHints {
@@ -42,7 +42,7 @@ pub struct Scheduler;
 impl Scheduler {
     /// Calculates the optimal chunk size for a given workload.
     /// 
-    /// v0.7 Adaptive Logic:
+    /// Adaptive Logic:
     /// - For very small workloads, use single-threaded execution.
     /// - For large workloads, partition based on available parallelism 
     ///   and cache boundaries.

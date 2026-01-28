@@ -7,7 +7,7 @@ fn test_adaptive_heuristics() {
     let info = SystemInfo::detect();
     let hints = WorkloadHints::default();
 
-    // 1. Scalar Fallback for tiny data (< 1024 in v2.0)
+    // 1. Scalar Fallback for tiny data (< 1024 in Sovereign v3.0)
     let s_tiny = AdaptiveEngine::choose_strategy(500, &hints, &info);
     assert_eq!(s_tiny, Strategy::ScalarFallback);
 

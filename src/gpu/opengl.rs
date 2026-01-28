@@ -1,15 +1,15 @@
 use super::GpuBackend;
 
-pub struct VulkanBackend;
+pub struct OpenGLBackend;
 
-impl GpuBackend for VulkanBackend {
+impl GpuBackend for OpenGLBackend {
     fn is_available(&self) -> bool {
-        // v3.0 placeholder - would check for vulkano/wgpu context
+        // v3.0 placeholder - would check for glad/glow context
         true 
     }
 
     fn add(&self, a: &[f32], b: &[f32], out: &mut [f32]) -> Result<(), String> {
-        // Simulated Vulkan compute execution
+        // Simulated OpenGL compute execution
         for i in 0..a.len() {
             out[i] = a[i] + b[i];
         }
@@ -38,5 +38,5 @@ impl GpuBackend for VulkanBackend {
         Ok(sum)
     }
 
-    fn name(&self) -> &'static str { "Vulkan" }
+    fn name(&self) -> &'static str { "OpenGL" }
 }

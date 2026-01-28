@@ -23,11 +23,16 @@ impl HardwareState {
         use std::time::{SystemTime, UNIX_EPOCH};
         let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
         
+        let cpu = detect_cpu();
+        let memory = detect_memory();
+        let gpu = detect_gpu(Some(&cpu.brand));
+        let context = detect_context();
+
         Self {
-            cpu: detect_cpu(),
-            memory: detect_memory(),
-            gpu: detect_gpu(),
-            context: detect_context(),
+            cpu,
+            memory,
+            gpu,
+            context,
             timestamp: now,
         }
     }

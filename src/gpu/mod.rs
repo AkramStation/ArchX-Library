@@ -4,7 +4,7 @@ pub trait GpuBackend: Send + Sync {
     /// Returns true if the backend is available on the current platform.
     fn is_available(&self) -> bool;
 
-    /// Executes calculation (v2.1 Sovereign Interface).
+    /// Executes calculation (Sovereign v3.0 Interface).
     fn execute(&self, a: &[f32], b: &[f32]) -> Vec<f32> {
         let mut out = vec![0.0; a.len()];
         let _ = self.add(a, b, &mut out);
@@ -13,6 +13,15 @@ pub trait GpuBackend: Send + Sync {
 
     /// Optimized slice-based addition.
     fn add(&self, a: &[f32], b: &[f32], out: &mut [f32]) -> Result<(), String>;
+
+    /// Optimized slice-based subtraction.
+    fn sub(&self, a: &[f32], b: &[f32], out: &mut [f32]) -> Result<(), String>;
+
+    /// Optimized slice-based multiplication.
+    fn mul(&self, a: &[f32], b: &[f32], out: &mut [f32]) -> Result<(), String>;
+
+    /// Optimized dot product.
+    fn dot(&self, a: &[f32], b: &[f32]) -> Result<f32, String>;
 
     /// Optional: Asynchronous implementation for non-blocking GPU dispatch.
     fn add_async(&self, _a: Vec<f32>, _b: Vec<f32>) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<Vec<f32>, String>> + Send>> {
@@ -28,12 +37,25 @@ pub trait GpuBackend: Send + Sync {
 
 pub mod vulkan;
 pub mod opencl;
+pub mod opengl;
+pub mod manager;
+
+pub use manager::{GpuPolicy, set_gpu_policy, get_gpu_policy, select_best_backend};
 
 pub struct DisabledBackend;
 
 impl GpuBackend for DisabledBackend {
     fn is_available(&self) -> bool { false }
     fn add(&self, _: &[f32], _: &[f32], _: &mut [f32]) -> Result<(), String> {
+        Err("GPU Backend is disabled or unavailable.".to_string())
+    }
+    fn sub(&self, _: &[f32], _: &[f32], _: &mut [f32]) -> Result<(), String> {
+        Err("GPU Backend is disabled or unavailable.".to_string())
+    }
+    fn mul(&self, _: &[f32], _: &[f32], _: &mut [f32]) -> Result<(), String> {
+        Err("GPU Backend is disabled or unavailable.".to_string())
+    }
+    fn dot(&self, _: &[f32], _: &[f32]) -> Result<f32, String> {
         Err("GPU Backend is disabled or unavailable.".to_string())
     }
     fn name(&self) -> &'static str { "Disabled" }
@@ -67,6 +89,24 @@ where
 /// Convenience: Executes addition on the active GPU backend.
 pub fn add(a: &[f32], b: &[f32], out: &mut [f32]) -> Result<(), String> {
     with_backend(|backend: &dyn GpuBackend| backend.add(a, b, out))
+        .unwrap_or_else(|| Err("No GPU backend registered".to_string()))
+}
+
+/// Convenience: Executes subtraction on the active GPU backend.
+pub fn sub(a: &[f32], b: &[f32], out: &mut [f32]) -> Result<(), String> {
+    with_backend(|backend: &dyn GpuBackend| backend.sub(a, b, out))
+        .unwrap_or_else(|| Err("No GPU backend registered".to_string()))
+}
+
+/// Convenience: Executes multiplication on the active GPU backend.
+pub fn mul(a: &[f32], b: &[f32], out: &mut [f32]) -> Result<(), String> {
+    with_backend(|backend: &dyn GpuBackend| backend.mul(a, b, out))
+        .unwrap_or_else(|| Err("No GPU backend registered".to_string()))
+}
+
+/// Convenience: Executes dot product on the active GPU backend.
+pub fn dot(a: &[f32], b: &[f32]) -> Result<f32, String> {
+    with_backend(|backend: &dyn GpuBackend| backend.dot(a, b))
         .unwrap_or_else(|| Err("No GPU backend registered".to_string()))
 }
 

@@ -31,4 +31,4 @@ ArchX follows the standard Rust Code of Conduct. Please be respectful and profes
 3. **Performance counts**: Every PR should ideally include a benchmark comparison.
 
 ---
-Designed with 🦀 by Codevora Studio.
+Designed with 🦀 by AkramStation.

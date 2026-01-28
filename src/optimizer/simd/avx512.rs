@@ -2,7 +2,7 @@
 use std::arch::x86_64::*;
 use crate::optimizer::scalar;
 
-/// AVX-512 implementation of the add operation with v2.0 loop unrolling.
+/// AVX-512 implementation of the add operation with v3.0 loop unrolling.
 /// 
 /// Process 32 floats per iteration (2x zmm registers) to maximize 
 /// instruction-level parallelism.
