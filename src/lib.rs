@@ -7,6 +7,7 @@ pub mod dispatch;
 pub mod optimizer;
 pub mod system;
 pub mod diagnostics;
+pub mod integration;
 
 /// Public API gateway for common operations.
 pub use system::{add, add_advanced, get_info, WorkloadHints};

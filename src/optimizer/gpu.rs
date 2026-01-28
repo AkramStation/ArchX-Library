@@ -25,20 +25,34 @@ impl GpuBackend for MockGpuBackend {
     }
 }
 
-static mut ACTIVE_BACKEND: Option<Box<dyn GpuBackend>> = None;
+use std::sync::{OnceLock, RwLock};
+
+static ACTIVE_BACKEND: OnceLock<RwLock<Option<Box<dyn GpuBackend>>>> = OnceLock::new();
 
 /// Registers a GPU backend for offloading.
+/// 
+/// WHY: v0.6 ensures thread-safety by using a RwLock, allowing 
+/// concurrent applications (like Tauri) to safely register and use backends.
 pub fn register_backend(backend: Box<dyn GpuBackend>) {
-    // SAFETY: Simple global assignment for v0.5. 
-    // In production, this would use a Mutex or Atomic.
-    unsafe {
-        ACTIVE_BACKEND = Some(backend);
+    let locker = ACTIVE_BACKEND.get_or_init(|| RwLock::new(None));
+    if let Ok(mut lock) = locker.write() {
+        *lock = Some(backend);
     }
 }
 
-/// Returns the currently active GPU backend, if any.
-pub fn get_backend() -> Option<&'static dyn GpuBackend> {
-    unsafe {
-        ACTIVE_BACKEND.as_ref().map(|b| b.as_ref())
-    }
+/// Returns the name of the currently active GPU backend, if any.
+pub fn get_active_backend_name() -> Option<String> {
+    ACTIVE_BACKEND.get()
+        .and_then(|l| l.read().ok())
+        .and_then(|lock| lock.as_ref().map(|b| b.name().to_string()))
+}
+
+/// Internal helper to access the backend for computation.
+pub(crate) fn with_backend<F, R>(f: F) -> Option<R> 
+where 
+    F: FnOnce(&dyn GpuBackend) -> R 
+{
+    ACTIVE_BACKEND.get()
+        .and_then(|l| l.read().ok())
+        .and_then(|lock| lock.as_ref().map(|b| f(b.as_ref())))
 }

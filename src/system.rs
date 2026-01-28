@@ -48,10 +48,12 @@ pub fn add(a: &[f32], b: &[f32], out: &mut [f32]) {
 pub fn add_advanced(a: &[f32], b: &[f32], out: &mut [f32], hints: WorkloadHints) {
     // 1. Check for GPU offloading request
     if hints.prefer_gpu {
-        if let Some(backend) = gpu::get_backend() {
-            if let Ok(_) = backend.add(a, b, out) {
-                return;
-            }
+        let gpu_result = gpu::with_backend(|backend| {
+            backend.add(a, b, out)
+        });
+
+        if let Some(Ok(_)) = gpu_result {
+            return;
         }
     }
 
