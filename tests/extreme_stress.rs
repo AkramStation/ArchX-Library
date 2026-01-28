@@ -5,7 +5,7 @@ fn test_stress_500m_extreme() {
     // 500 Million elements for v0.7 extreme stress testing.
     // This will consume ~6GB of RAM (3 * 4 * 500M).
     // WARNING: May be skipped on low-memory environments.
-    let size = 500_000_000;
+    let _size = 500_000_000;
     
     println!("Starting extreme stress test: 500M elements...");
     

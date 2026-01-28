@@ -15,7 +15,7 @@ async fn main() {
 
     // 1. System Insight
     let info = get_info();
-    println!("Platform:  {:?} ({})", info.arch, info.bits);
+    println!("Platform:  {:?} ({:?})", info.arch, info.bits);
     println!("SIMD:      SSE2: {}, AVX: {}, AVX2: {}", 
         info.features.sse2, info.features.avx, info.features.avx2);
     

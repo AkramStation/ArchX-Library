@@ -68,7 +68,7 @@ impl Profiler {
         let snapshot = self.get_snapshot();
         let mut csv = String::from("name,duration_ms,thread_id\n");
         for m in snapshot {
-            csv.push_str(&format!("{},{},{:?}\n", m.name, m.duration.as_secs_f16() * 1000.0, m.thread_id));
+            csv.push_str(&format!("{},{},{:?}\n", m.name, m.duration.as_secs_f64() * 1000.0, m.thread_id));
         }
         csv
     }

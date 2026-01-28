@@ -1,9 +1,13 @@
 [package]
 name = "archx"
-version = "0.1.0"
+version = "1.1.1"
+authors = ["AkramStation"]
 edition = "2021"
-description = "Primitive but solid CPU-aware optimization library for Rust"
 license = "MIT"
+description = "High-performance CPU/GPU adaptive optimization library for Rust"
+repository = "https://github.com/AkramStation/ArchX-Library"
+documentation = "https://docs.rs/archx"
+
 
 [lib]
 name = "archx"

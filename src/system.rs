@@ -30,8 +30,6 @@ impl CpuInfo {
 pub use crate::optimizer::scheduler::WorkloadHints;
 use crate::optimizer::{parallel, gpu};
 
-/// Threshold for switching from single-threaded to multi-threaded execution.
-const PARALLEL_THRESHOLD: usize = 128_000;
 
 /// A high-level, CPU-aware addition operation.
 /// 

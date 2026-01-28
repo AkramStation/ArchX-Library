@@ -23,22 +23,45 @@ impl AdaptiveEngine {
         }
 
         // 1. GPU Path - Refined threshold for PCIe transfer overhead
-        if hints.prefer_gpu && len >= 250_000 {
+        let gpu_threshold = if info.features.avx512f { 1_000_000 } else { 250_000 };
+        
+        if hints.prefer_gpu && len >= gpu_threshold {
             return Strategy::GpuOffload;
         }
 
+        // v1.1: Extremely small datasets should avoid SIMD setup costs.
+        if len < 1000 {
+            return Strategy::ScalarFallback;
+        }
+
         // 2. Power & Scaling Heuristics
+        let base_threads = match hints.power_mode {
+            PowerMode::PowerSaving => info.cpu_cores,
+            _ => info.logical_processors,
+        };
+
+        let mut target_threads = if let Some(cap) = hints.max_cpu_usage {
+            (info.logical_processors as f32 * cap).max(1.0) as usize
+        } else {
+            base_threads
+        };
+        
+        // Ensure we don't exceed the requested thread count if provided manually
+        if let Some(manual) = hints.thread_count {
+            target_threads = target_threads.min(manual);
+        }
+
         match hints.power_mode {
             PowerMode::PowerSaving => {
                 if len < 1_000_000 {
                     Strategy::SingleThreadSimd
                 } else {
-                    Strategy::ParallelSimd(info.cpu_cores) // Use physical cores only
+                    Strategy::ParallelSimd(target_threads.min(info.cpu_cores))
                 }
             }
             PowerMode::HighPerformance => {
                 if len >= 16384 {
-                    Strategy::ParallelSimd(info.logical_processors)
+                    Strategy::ParallelSimd(target_threads)
                 } else {
                     Strategy::SingleThreadSimd
                 }
@@ -47,7 +70,7 @@ impl AdaptiveEngine {
                 if len < 32768 {
                     Strategy::SingleThreadSimd
                 } else {
-                    Strategy::ParallelSimd(info.logical_processors)
+                    Strategy::ParallelSimd(target_threads)
                 }
             }
         }

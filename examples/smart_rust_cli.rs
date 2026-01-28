@@ -2,7 +2,7 @@ use archx::*;
 
 #[tokio::main]
 async fn main() {
-    println!("ArchX v0.9 - Smart & Resource-Aware CLI Example");
+    println!("ArchX v1.1 - Smart & Resource-Aware CLI Example");
     println!("===============================================");
 
     // 1. Balanced Mode (Default)
@@ -26,10 +26,10 @@ async fn main() {
 
     // 4. Async + Smart Diagnostics
     println!("Running Async Smart Dispatch...");
-    let res = add_async(data.clone(), data, WorkloadHints::default()).await;
+    let _ = add_async(data.clone(), data, WorkloadHints::default()).await;
     
     let info = get_info();
     println!("Final Diagnostics: CPU cores utilized conservatively based on load.");
-    println!("Current Hardware: {:?} with {} logical processors", info.arch, info.bits);
+    println!("Current Hardware: {:?} with {:?} logical processors", info.arch, info.bits);
     println!("All operations consistent and resource-aware.");
 }

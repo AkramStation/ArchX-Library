@@ -24,28 +24,27 @@ pub fn add_parallel_impl(a: &[f32], b: &[f32], out: &mut [f32], hints: &Workload
     let chunk_size = Scheduler::calculate_chunk_size(len, num_threads, hints);
     let add_fn = Selector::get_add_fn();
 
-    // v1.0 PRODUCTION: Explicitly bound the number of spawns to avoid overhead.
+    // v1.1: Pre-calculate pointers to minimize loop overhead
+    let a_ptr = a.as_ptr();
+    let b_ptr = b.as_ptr();
+
     thread::scope(|s| {
         for i in 0..num_threads {
-            let start = i * chunk_size;
-            if start >= len { break; }
-            let end = (start + chunk_size).min(len);
+            let offset = i * chunk_size;
+            if offset >= len { break; }
+            let count = (len - offset).min(chunk_size);
             
-            let a_chunk = &a[start..end];
-            let b_chunk = &b[start..end];
-            
-            // Safety: Disjoint regions verified for v1.0 production parity.
             unsafe {
-                let out_ptr = out.as_mut_ptr().add(start);
-                let out_slice = std::slice::from_raw_parts_mut(out_ptr, end - start);
+                let ca = std::slice::from_raw_parts(a_ptr.add(offset), count);
+                let cb = std::slice::from_raw_parts(b_ptr.add(offset), count);
+                let out_ptr = out.as_mut_ptr().add(offset);
+                let co = std::slice::from_raw_parts_mut(out_ptr, count);
                 
                 s.spawn(move || {
-                    let _thread_scope = crate::profiling::ProfileScope::new("Parallel Chunk", Some(start / chunk_size));
-                    add_fn(a_chunk, b_chunk, out_slice);
+                    let _thread_scope = crate::profiling::ProfileScope::new("Parallel Chunk", Some(i));
+                    add_fn(ca, cb, co);
                 });
             }
-            
-            start = end;
         }
     });
 }
