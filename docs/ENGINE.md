@@ -15,9 +15,9 @@ The engine manages the "Crossover Point":
 - **Small Tasks**: Executed on CPU SIMD to avoid bus latency.
 - **Large Tasks**: Split (70/30) between GPU and CPU to maximize total system throughput.
 - **Policy Influence**:
-    - `Policy::Speed`: Prioritizes GPU offloading for even moderately sized tasks.
+    - `Policy::Performance`: Prioritizes GPU offloading for even moderately sized tasks.
     - `Policy::Balanced`: Uses a heuristics-based split to minimize total energy per computation.
-    - `Policy::Privacy`: Restricts computation to the CPU to avoid data exposure on shared GPU buses.
+    - `Policy::PowerSaving`: Restricts computation to the CPU to avoid data exposure on shared GPU buses.
 
 ## The v3.0 API Standard
 

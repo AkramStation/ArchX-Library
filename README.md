@@ -15,14 +15,14 @@
 Add `ArchX` to your `Cargo.toml`:
 ```toml
 [dependencies]
-archx = "2.4"
+archx = "3.0"
 ```
 
 ### Basic Vector Addition
 ```rust
 use archx::{ArchX, Policy};
 
-fn main() -> Result<(), archx::ArchXResult<()>> {
+fn main() -> archx::ArchXResult<()> {
     let a = vec![1.0; 1000];
     let b = vec![2.0; 1000];
     let mut out = vec![0.0; 1000];
@@ -63,7 +63,7 @@ ArchX intelligently splits workloads based on hardware state and workload size.
 
 ### Collecting Metrics
 ```rust
-use archx::{archx, JsonExporter, ReportExporter};
+use archx::{archx, Policy};
 
 let metrics = archx()
     .profile(true)
@@ -72,9 +72,8 @@ let metrics = archx()
         // Your complex task
     });
 
-// Export metrics to JSON
-let exporter = JsonExporter;
-exporter.export(&metrics, "performance_report.json")?;
+// Use the built-in profiler visualization
+archx::get_profiler().print_summary();
 ```
 
 ---
@@ -123,6 +122,8 @@ async fn main() {
 All ArchX operations return `ArchXResult<T>`. Handle errors gracefully:
 
 ```rust
+use archx::ArchXError;
+
 match archx().add(&a, &b, &mut out) {
     Ok(_) => println!("Success!"),
     Err(e) => match e {
@@ -139,7 +140,7 @@ match archx().add(&a, &b, &mut out) {
 ## 🧪 Verification
 Run flagship demo:
 ```bash
-cargo run --example v3_fluent_api_demo
+cargo run --example v3_sovereign_gpu_demo
 ```
 
 Designed with ❤️ by **AkramStation**.
