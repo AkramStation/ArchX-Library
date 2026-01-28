@@ -40,7 +40,7 @@ fn main() {
 }
 ```
 
-### Advanced Fluent API (v1.2)
+### Advanced Fluent API (v1.2.0)
 Professional control for enterprise-grade applications.
 ```rust
 use archx::engine;
@@ -87,7 +87,7 @@ fn main() {
 
 ---
 
-## 📅 v1.2 Roadmap
+## 📅 v1.2.0 Roadmap
 - [ ] **Plugin System**: custom optimizer plugins for specialized domains.
 - [ ] **Dynamic Re-calibration**: live heuristic tuning based on system load.
 - [ ] **ARM Neon parity**: full-speed optimizations for Apple Silicon.
