@@ -3,7 +3,7 @@
 **ArchX** is a primitive but solid CPU-aware optimization foundation for Rust. It provides a clean, modular architecture for detecting CPU features at runtime and dispatching optimized execution paths, ensuring performance without sacrificing safety or portability.
 
 > [!NOTE]
-> This is **v0.3.1**. It adds a comprehensive **verification suite** (tests/ folder) and a **benchmarking system** to validate CPU detection, dispatch logic, and SIMD consistency.
+> This is **v0.4**. It introduces **parallel computing** for large workloads, automatically distributing tasks across CPU cores while maintaining SIMD acceleration on each core.
 
 ---
 
