@@ -39,14 +39,8 @@ impl CpuInfo {
 /// WHY: This is the primary entry point for users. It hides all complexity
 /// of SIMD detection and dispatching.
 pub fn add(a: &[f32], b: &[f32], out: &mut [f32]) {
-    // 1. Detect CPU features (ideally this could be cached for performance)
-    let features = CpuFeatures::detect();
-    
-    // 2. Select best execution path
-    let path = Selector::best_path(&features);
-    
-    // 3. Dispatch to implementation
-    Selector::dispatch_add(a, b, out, path);
+    // Dispatch using the optimized 'Init Once' system
+    Selector::dispatch_add(a, b, out);
 }
 
 /// Returns the detected CPU info.

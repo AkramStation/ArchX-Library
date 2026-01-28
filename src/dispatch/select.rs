@@ -1,6 +1,10 @@
+use std::sync::OnceLock;
 use crate::cpu::features::CpuFeatures;
 use crate::optimizer::scalar;
-use crate::optimizer::simd::sse2;
+use crate::optimizer::simd::{sse2, avx, avx2};
+
+/// Type definition for the optimized 'add' function.
+type AddFn = fn(&[f32], &[f32], &mut [f32]);
 
 /// Defines the strategy for execution path selection.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -12,43 +16,60 @@ pub enum DispatchPath {
 }
 
 /// A selector that decides which implementation path to use based on CPU features.
+/// 
+/// Refactored in v0.3 to use a 'Dispatch Once' strategy, caching the optimal 
+/// function pointer to avoid repeated CPUID checks.
 pub struct Selector;
+
+static CACHED_ADD_FN: OnceLock<AddFn> = OnceLock::new();
 
 impl Selector {
     /// Selects the best available execution path for the current CPU.
-    /// 
-    /// WHY: This abstraction allows us to add more optimized paths (like AVX2) 
-    /// without changing the public API or the caller's logic.
     pub fn best_path(features: &CpuFeatures) -> DispatchPath {
-        // v0.2: Prioritize SSE2 if available.
-        // AVX/AVX2 paths are reserved for future versions.
-        
-        if features.sse2 {
+        if features.avx2 {
+            DispatchPath::AVX2
+        } else if features.avx {
+            DispatchPath::AVX
+        } else if features.sse2 {
             DispatchPath::SSE2
         } else {
             DispatchPath::Scalar
         }
     }
 
-    /// Dispatches the 'add' operation to the chosen implementation.
+    /// Returns the cached, optimal function pointer for the 'add' operation.
     /// 
-    /// WHY: Separation of concerns. The selector knows WHERE to go, 
-    /// and this method executes the trip.
-    pub fn dispatch_add(a: &[f32], b: &[f32], out: &mut [f32], path: DispatchPath) {
-        match path {
-            DispatchPath::SSE2 => {
-                #[cfg(target_arch = "x86_64")]
-                {
-                    sse2::add_sse2_impl(a, b, out);
+    /// WHY: This prevents branching and feature detection overhead in hot loops.
+    pub fn get_add_fn() -> AddFn {
+        *CACHED_ADD_FN.get_or_init(|| {
+            let features = CpuFeatures::detect();
+            match Self::best_path(&features) {
+                DispatchPath::AVX2 => {
+                    #[cfg(target_arch = "x86_64")]
+                    { avx2::add_avx2_impl }
+                    #[cfg(not(target_arch = "x86_64"))]
+                    { scalar::add_impl }
                 }
-                #[cfg(not(target_arch = "x86_64"))]
-                {
-                    scalar::add_impl(a, b, out);
+                DispatchPath::AVX => {
+                    #[cfg(target_arch = "x86_64")]
+                    { avx::add_avx_impl }
+                    #[cfg(not(target_arch = "x86_64"))]
+                    { scalar::add_impl }
                 }
-            },
-            DispatchPath::Scalar => scalar::add_impl(a, b, out),
-            // Future paths (AVX/AVX2) will fallback to scalar until implemented
-            _ => scalar::add_impl(a, b, out),
-        }
+                DispatchPath::SSE2 => {
+                    #[cfg(target_arch = "x86_64")]
+                    { sse2::add_sse2_impl }
+                    #[cfg(not(target_arch = "x86_64"))]
+                    { scalar::add_impl }
+                }
+                DispatchPath::Scalar => scalar::add_impl,
+            }
+        })
+    }
+
+    /// Dispatches the 'add' operation using the cached optimal path.
+    pub fn dispatch_add(a: &[f32], b: &[f32], out: &mut [f32]) {
+        let func = Self::get_add_fn();
+        func(a, b, out);
     }
 }

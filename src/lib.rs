@@ -36,25 +36,34 @@ mod tests {
     #[test]
     fn test_simd_vs_scalar_consistency() {
         use crate::optimizer::scalar;
-        use crate::optimizer::simd::sse2;
+        use crate::optimizer::simd::{sse2, avx, avx2};
 
         let size = 1025; // Intentional remainder
         let a = vec![1.5f32; size];
         let b = vec![2.5f32; size];
         let mut out_scalar = vec![0.0f32; size];
-        let mut out_simd = vec![0.0f32; size];
-
+        
         scalar::add_impl(&a, &b, &mut out_scalar);
         
         #[cfg(target_arch = "x86_64")]
         {
-            sse2::add_sse2_impl(&a, &b, &mut out_simd);
-            assert_eq!(out_scalar, out_simd, "SIMD and Scalar results must match exactly");
+            let mut out_sse2 = vec![0.0f32; size];
+            let mut out_avx = vec![0.0f32; size];
+            let mut out_avx2 = vec![0.0f32; size];
+
+            sse2::add_sse2_impl(&a, &b, &mut out_sse2);
+            assert_eq!(out_scalar, out_sse2, "SSE2 and Scalar results must match");
+
+            avx::add_avx_impl(&a, &b, &mut out_avx);
+            assert_eq!(out_scalar, out_avx, "AVX and Scalar results must match");
+
+            avx2::add_avx2_impl(&a, &b, &mut out_avx2);
+            assert_eq!(out_scalar, out_avx2, "AVX2 and Scalar results must match");
         }
     }
 
     #[test]
-    #[ignore] // Run with `cargo test -- --ignored --nocapture`
+    #[ignore]
     fn benchmark_add() {
         use std::time::Instant;
         
@@ -63,7 +72,7 @@ mod tests {
         let b = vec![2.0f32; size];
         let mut out = vec![0.0f32; size];
 
-        // Warm up
+        // Warm up and initialize dispatch
         add(&a, &b, &mut out);
 
         let start = Instant::now();
@@ -72,12 +81,18 @@ mod tests {
         }
         let duration = start.elapsed();
         
-        println!("\n--- ArchX Benchmark ---");
+        // Use system::get_info for display
+        let info = system::get_info();
+
+        println!("\n--- ArchX v0.3 Benchmark ---");
         println!("Size: {} floats", size);
-        println!("Execution Path: {:?}", dispatch::select::Selector::best_path(&cpu::features::CpuFeatures::detect()));
+        println!("Arch: {:?}", info.arch);
+        println!("AVX2 support: {}", info.features.avx2);
+        println!("AVX  support: {}", info.features.avx);
+        println!("SSE2 support: {}", info.features.sse2);
         println!("Total time (100 iterations): {:?}", duration);
         println!("Average per iteration: {:?}", duration / 100);
-        println!("-----------------------\n");
+        println!("----------------------------\n");
     }
 }
 

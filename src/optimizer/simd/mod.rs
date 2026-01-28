@@ -10,4 +10,6 @@
 //! - **AVX/AVX2**: Planned for v0.3 to double/quadruple throughput on supported CPUs.
 //! - **AArch64 NEON**: Planned for future mobile/Apple Silicon support.
 
+pub mod avx;
+pub mod avx2;
 pub mod sse2;
