@@ -13,12 +13,12 @@ pub enum DispatchPath {
     SSE2,
     AVX,
     AVX2,
+    AVX512,
 }
 
 /// A selector that decides which implementation path to use based on CPU features.
 /// 
-/// Refactored in v0.3 to use a 'Dispatch Once' strategy, caching the optimal 
-/// function pointer to avoid repeated CPUID checks.
+/// Refactored in v0.5 to support AVX-512.
 pub struct Selector;
 
 static CACHED_ADD_FN: OnceLock<AddFn> = OnceLock::new();
@@ -26,7 +26,9 @@ static CACHED_ADD_FN: OnceLock<AddFn> = OnceLock::new();
 impl Selector {
     /// Selects the best available execution path for the current CPU.
     pub fn best_path(features: &CpuFeatures) -> DispatchPath {
-        if features.avx2 {
+        if features.avx512f {
+            DispatchPath::AVX512
+        } else if features.avx2 {
             DispatchPath::AVX2
         } else if features.avx {
             DispatchPath::AVX
@@ -44,6 +46,12 @@ impl Selector {
         *CACHED_ADD_FN.get_or_init(|| {
             let features = CpuFeatures::detect();
             match Self::best_path(&features) {
+                DispatchPath::AVX512 => {
+                    #[cfg(target_arch = "x86_64")]
+                    { crate::optimizer::simd::avx512::add_avx512_impl }
+                    #[cfg(not(target_arch = "x86_64"))]
+                    { scalar::add_impl }
+                }
                 DispatchPath::AVX2 => {
                     #[cfg(target_arch = "x86_64")]
                     { avx2::add_avx2_impl }

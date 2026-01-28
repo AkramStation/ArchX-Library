@@ -6,9 +6,11 @@ pub mod cpu;
 pub mod dispatch;
 pub mod optimizer;
 pub mod system;
+pub mod diagnostics;
 
 /// Public API gateway for common operations.
-pub use system::{add, get_info};
+pub use system::{add, add_advanced, get_info, WorkloadHints};
+pub use optimizer::gpu::{register_backend, GpuBackend};
 
 #[cfg(test)]
 mod tests {

@@ -7,6 +7,8 @@ pub struct CpuFeatures {
     pub avx: bool,
     /// Advanced Vector Extensions 2
     pub avx2: bool,
+    /// Advanced Vector Extensions 512 Foundation
+    pub avx512f: bool,
 }
 
 impl CpuFeatures {
@@ -24,6 +26,7 @@ impl CpuFeatures {
             features.sse2 = std::is_x86_feature_detected!("sse2");
             features.avx = std::is_x86_feature_detected!("avx");
             features.avx2 = std::is_x86_feature_detected!("avx2");
+            features.avx512f = std::is_x86_feature_detected!("avx512f");
         }
 
         features

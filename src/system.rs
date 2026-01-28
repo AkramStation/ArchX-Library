@@ -27,31 +27,38 @@ impl CpuInfo {
     }
 }
 
-use crate::optimizer::parallel;
+pub use crate::optimizer::scheduler::WorkloadHints;
+use crate::optimizer::{parallel, gpu};
 
 /// Threshold for switching from single-threaded to multi-threaded execution.
-/// 
-/// WHY: Threading has overhead (context switching, synchronization). 
-/// For small vectors, single-threaded SIMD is much faster.
 const PARALLEL_THRESHOLD: usize = 128_000;
 
 /// A high-level, CPU-aware addition operation.
 /// 
-/// This function automatically detects the best implementation for the current CPU
-/// and decides whether to use parallel processing based on the data size.
-/// 
-/// # Arguments
-/// * `a` - First input slice
-/// * `b` - Second input slice
-/// * `out` - Output slice to store results (a + b)
-/// 
-/// WHY: This is the primary entry point for users. It hides all complexity
-/// of SIMD detection, dispatching, and thread management.
+/// This function uses default heuristics for optimal performance. 
+/// For large workloads, it automatically employs parallel processing.
 pub fn add(a: &[f32], b: &[f32], out: &mut [f32]) {
-    if a.len() >= PARALLEL_THRESHOLD {
-        parallel::add_parallel_impl(a, b, out);
+    add_advanced(a, b, out, WorkloadHints::default());
+}
+
+/// An advanced addition operation that accepts performance tuning hints.
+/// 
+/// WHY: v0.5 allows users to specify thread counts or request GPU offloading 
+/// for specific workloads.
+pub fn add_advanced(a: &[f32], b: &[f32], out: &mut [f32], hints: WorkloadHints) {
+    // 1. Check for GPU offloading request
+    if hints.prefer_gpu {
+        if let Some(backend) = gpu::get_backend() {
+            if let Ok(_) = backend.add(a, b, out) {
+                return;
+            }
+        }
+    }
+
+    // 2. CPU Execution path
+    if a.len() >= PARALLEL_THRESHOLD || hints.thread_count.unwrap_or(0) > 1 {
+        parallel::add_parallel_impl(a, b, out, &hints);
     } else {
-        // Dispatch using the optimized single-threaded SIMD system
         Selector::dispatch_add(a, b, out);
     }
 }
