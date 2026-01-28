@@ -1,0 +1,17 @@
+# Rust artifacts
+/target/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Cargo lock file is sometimes ignored in libraries, 
+# but for specific versions it is often kept.
+# We'll keep it for now as it's a foundation library.
+# Cargo.lock
