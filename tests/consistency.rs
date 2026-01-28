@@ -1,4 +1,3 @@
-use archx;
 
 // We need to access internal modules for granular parity testing.
 // However, integration tests in 'tests/' can only see the public API.

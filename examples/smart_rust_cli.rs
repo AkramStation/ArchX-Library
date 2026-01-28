@@ -13,16 +13,20 @@ async fn main() {
     add_advanced(&data, &data, &mut out, WorkloadHints::default());
 
     // 2. Power Saving Mode (Favors SIMD over Threads)
-    let mut hints = WorkloadHints::default();
-    hints.power_mode = PowerMode::PowerSaving;
+    let hints_ps = WorkloadHints {
+        power_mode: PowerMode::PowerSaving,
+        ..Default::default()
+    };
     println!("Running Power Saving Mode...");
-    add_advanced(&data, &data, &mut out, hints);
+    add_advanced(&data, &data, &mut out, hints_ps);
 
     // 3. Resource Capped (Max 25% CPU)
-    let mut hints = WorkloadHints::default();
-    hints.max_cpu_usage = Some(0.25);
+    let hints_cap = WorkloadHints {
+        max_cpu_usage: Some(0.25),
+        ..Default::default()
+    };
     println!("Running Resource Capped (Max 25%% CPU)...");
-    add_advanced(&data, &data, &mut out, hints);
+    add_advanced(&data, &data, &mut out, hints_cap);
 
     // 4. Async + Smart Diagnostics
     println!("Running Async Smart Dispatch...");

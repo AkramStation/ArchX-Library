@@ -10,8 +10,10 @@ fn test_v1_0_engine_stability() {
     assert_eq!(out[0], 2.0);
     
     // Test that production power modes don't crash
-    let mut hints = WorkloadHints::default();
-    hints.power_mode = PowerMode::PowerSaving;
+    let hints = WorkloadHints {
+        power_mode: PowerMode::PowerSaving,
+        ..Default::default()
+    };
     archx::add_advanced(&a, &a, &mut out, hints);
     assert_eq!(out[999], 2.0);
 }

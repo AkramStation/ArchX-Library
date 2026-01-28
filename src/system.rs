@@ -48,7 +48,7 @@ pub fn add_advanced(a: &[f32], b: &[f32], out: &mut [f32], hints: WorkloadHints)
             parallel::add_parallel_impl(a, b, out, &hints);
         }
         crate::adaptive::Strategy::ParallelSimd(n) => {
-            let mut active_hints = hints.clone();
+            let mut active_hints = hints;
             active_hints.thread_count = Some(n);
             parallel::add_parallel_impl(a, b, out, &active_hints);
         }

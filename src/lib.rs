@@ -9,14 +9,12 @@
 //! ```rust
 //! use archx::add;
 //!
-//! fn main() {
-//!     let a = vec![1.0; 1_000_000];
-//!     let b = vec![2.0; 1_000_000];
-//!     let mut out = vec![0.0; 1_000_000];
+//! let a = vec![1.0; 1_000_000];
+//! let b = vec![2.0; 1_000_000];
+//! let mut out = vec![0.0; 1_000_000];
 //!
-//!     // ArchX detects your CPU and decides the best path (SIMD or Parallel).
-//!     add(&a, &b, &mut out);
-//! }
+//! // ArchX detects your CPU and decides the best path (SIMD or Parallel).
+//! add(&a, &b, &mut out);
 //! ```
 //!
 //! ## 🏗️ Core Architecture

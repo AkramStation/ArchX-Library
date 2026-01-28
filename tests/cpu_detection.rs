@@ -1,4 +1,3 @@
-use archx;
 
 #[test]
 fn test_cpu_detection_accuracy() {

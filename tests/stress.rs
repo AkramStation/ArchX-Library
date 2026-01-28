@@ -1,4 +1,3 @@
-use archx;
 
 #[test]
 fn test_stress_massive_workload() {
@@ -29,8 +28,10 @@ fn test_advanced_hints() {
     let b = vec![2.0; size];
     let mut out = vec![0.0; size];
 
-    let mut hints = archx::WorkloadHints::default();
-    hints.thread_count = Some(2); // Force threading even for small size.
+    let hints = archx::WorkloadHints {
+        thread_count: Some(2),
+        ..Default::default()
+    };
     
     archx::add_advanced(&a, &b, &mut out, hints);
     assert_eq!(out[0], 3.0);

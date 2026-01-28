@@ -39,7 +39,7 @@ impl Scheduler {
 
         // Adaptive heuristic: If system load is high (simulated), increase chunk size 
         // to reduce task spawning frequency.
-        let base_chunk = (len + num_threads - 1) / num_threads;
+        let base_chunk = len.div_ceil(num_threads);
         
         // Ensure floor (e.g., 8192 elements) to satisfy cache-line utilization
         let floor = 8192;

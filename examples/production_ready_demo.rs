@@ -28,8 +28,10 @@ async fn main() {
 
     // 3. Execution Path: Resource-Aware High Performance
     println!("Executing High Performance Path (Parallel SIMD)...");
-    let mut hp_hints = WorkloadHints::default();
-    hp_hints.power_mode = PowerMode::HighPerformance;
+    let hp_hints = WorkloadHints {
+        power_mode: PowerMode::HighPerformance,
+        ..Default::default()
+    };
     
     let start = Instant::now();
     add_advanced(&a, &b, &mut out, hp_hints);
@@ -37,8 +39,10 @@ async fn main() {
 
     // 4. Execution Path: Energy-Efficient (Power Saving)
     println!("\nExecuting Power Saving Path (Adaptive Scheduling)...");
-    let mut ps_hints = WorkloadHints::default();
-    ps_hints.power_mode = PowerMode::PowerSaving;
+    let ps_hints = WorkloadHints {
+        power_mode: PowerMode::PowerSaving,
+        ..Default::default()
+    };
     
     let start = Instant::now();
     add_advanced(&a, &b, &mut out, ps_hints);

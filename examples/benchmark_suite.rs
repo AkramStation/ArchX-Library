@@ -1,4 +1,3 @@
-use archx;
 use archx::profiling::get_profiler;
 use std::time::Instant;
 

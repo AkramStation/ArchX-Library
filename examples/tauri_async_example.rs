@@ -2,8 +2,10 @@ use archx::{add_async, WorkloadHints};
 
 // Imagine a Tauri #[tauri::command]
 async fn tauri_archx_compute(data: Vec<f32>) -> Vec<f32> {
-    let mut hints = WorkloadHints::default();
-    hints.prefer_gpu = true;
+    let hints = WorkloadHints {
+        prefer_gpu: true,
+        ..Default::default()
+    };
     
     // Non-blocking computation! Safe for UI threads.
     add_async(data.clone(), data, hints).await

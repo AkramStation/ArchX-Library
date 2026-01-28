@@ -26,6 +26,12 @@ pub struct ArchXEngine {
     profiling_enabled: bool,
 }
 
+impl Default for ArchXEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ArchXEngine {
     /// Creates a new engine instance with default heuristics.
     pub fn new() -> Self {
@@ -77,7 +83,7 @@ impl ArchXEngine {
             get_profiler().set_enabled(true);
         }
         
-        crate::system::add_advanced(a, b, out, self.hints.clone());
+        crate::system::add_advanced(a, b, out, self.hints);
     }
 }
 

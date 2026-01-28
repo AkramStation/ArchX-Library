@@ -1,4 +1,3 @@
-use archx;
 
 #[test]
 fn test_stress_500m_extreme() {
